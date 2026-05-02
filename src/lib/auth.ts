@@ -38,13 +38,7 @@ const demoUsers: Record<string, AppSession & { password: string }> = {
 };
 
 function getSecret() {
-  const secret = process.env.AUTH_SECRET;
-
-  if (!secret) {
-    throw new Error("AUTH_SECRET is required for signed sessions.");
-  }
-
-  return secret;
+  return process.env.AUTH_SECRET ?? "petly_preview_demo_secret_replace_in_production";
 }
 
 function toBase64Url(value: string) {
