@@ -1042,6 +1042,22 @@ th,
   font-weight: 900;
 }
 
+.admin-header-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.role-pill.success {
+  color: #286049;
+  background: rgba(88, 171, 133, 0.2);
+}
+
+.role-pill.warning {
+  color: #8b5a16;
+  background: rgba(244, 184, 96, 0.24);
+}
+
 .admin-session {
   display: flex;
   align-items: center;

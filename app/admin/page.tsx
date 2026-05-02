@@ -1,21 +1,42 @@
 import Link from "next/link";
 import { logoutAction } from "./actions";
+import { getAdminDashboardData } from "@/src/lib/admin-dashboard";
 import { requireRole } from "@/src/lib/auth";
+
+function formatNumber(value: number) {
+  return new Intl.NumberFormat("es-CR").format(value);
+}
+
+function formatCurrencyFromCents(value: number) {
+  return new Intl.NumberFormat("es-CR", {
+    currency: "USD",
+    maximumFractionDigits: 0,
+    style: "currency",
+  }).format(value / 100);
+}
 
 export default async function AdminPage() {
   const session = await requireRole("ADMIN");
+  const dashboard = await getAdminDashboardData();
+  const estimatedRevenueCents = dashboard.metrics.clicks * 25;
+  const engagement =
+    dashboard.metrics.users > 0
+      ? Math.round((dashboard.metrics.posts / dashboard.metrics.users) * 100)
+      : 0;
 
   return (
     <div className="admin-page">
       <aside className="admin-sidebar">
-        <Link className="admin-brand" href="/"><span>P</span> Petly</Link>
+        <Link className="admin-brand" href="/">
+          <span>P</span> Petly
+        </Link>
         <nav className="admin-nav">
           <a className="active" href="#resumen">Resumen</a>
           <a href="#usuarios">Usuarios</a>
           <a href="#contenido">Contenido</a>
           <a href="#anuncios">Anuncios</a>
           <a href="#partners">Partners</a>
-          <a href="#moderacion">Moderación</a>
+          <a href="#moderacion">Moderacion</a>
         </nav>
       </aside>
 
@@ -23,8 +44,13 @@ export default async function AdminPage() {
         <header className="admin-header">
           <div>
             <p>Panel administrativo</p>
-            <h1>Centro de crecimiento y monetización</h1>
-            <span className="role-pill">Rol: {session.role}</span>
+            <h1>Centro de crecimiento y monetizacion</h1>
+            <div className="admin-header-badges">
+              <span className="role-pill">Rol: {session.role}</span>
+              <span className={`role-pill ${dashboard.source === "database" ? "success" : "warning"}`}>
+                {dashboard.source === "database" ? "Base conectada" : "Modo fallback"}
+              </span>
+            </div>
           </div>
           <div className="admin-session">
             <span>{session.name}</span>
@@ -36,24 +62,24 @@ export default async function AdminPage() {
 
         <section className="metrics" id="resumen">
           <article>
-            <span>Usuarios activos</span>
-            <strong>18,420</strong>
-            <small>+12.4% este mes</small>
+            <span>Usuarios registrados</span>
+            <strong>{formatNumber(dashboard.metrics.users)}</strong>
+            <small>{formatNumber(dashboard.metrics.businesses)} empresas registradas</small>
           </article>
           <article>
             <span>Mascotas registradas</span>
-            <strong>27,905</strong>
-            <small>1.5 mascotas por usuario</small>
+            <strong>{formatNumber(dashboard.metrics.pets)}</strong>
+            <small>{formatNumber(dashboard.metrics.posts)} publicaciones totales</small>
           </article>
           <article>
             <span>Ingresos estimados</span>
-            <strong>$6,840</strong>
-            <small>Google Ads + campañas privadas</small>
+            <strong>{formatCurrencyFromCents(estimatedRevenueCents)}</strong>
+            <small>{formatNumber(dashboard.metrics.clicks)} clics publicitarios</small>
           </article>
           <article>
             <span>Engagement</span>
-            <strong>41%</strong>
-            <small>Publicaciones, likes y comentarios</small>
+            <strong>{engagement}%</strong>
+            <small>{formatNumber(dashboard.metrics.impressions)} impresiones registradas</small>
           </article>
         </section>
 
@@ -67,21 +93,13 @@ export default async function AdminPage() {
               <button className="ghost">Configurar</button>
             </div>
             <div className="ad-list">
-              <div>
-                <strong>Feed nativo</strong>
-                <span>Google AdSense / Ad Manager</span>
-                <em>Activo</em>
-              </div>
-              <div>
-                <strong>Historias patrocinadas</strong>
-                <span>Marcas privadas</span>
-                <em>Disponible</em>
-              </div>
-              <div>
-                <strong>Directorio premium</strong>
-                <span>Veterinarias, groomers, tiendas</span>
-                <em>En diseño</em>
-              </div>
+              {dashboard.adInventory.map((ad) => (
+                <div key={ad.id}>
+                  <strong>{ad.title}</strong>
+                  <span>{ad.channel}</span>
+                  <em>{ad.status}</em>
+                </div>
+              ))}
             </div>
           </article>
 
@@ -89,7 +107,7 @@ export default async function AdminPage() {
             <div className="panel-head">
               <div>
                 <p>Partners privados</p>
-                <h2>Campañas comerciales</h2>
+                <h2>Campanas comerciales</h2>
               </div>
               <button className="ghost">Nuevo partner</button>
             </div>
@@ -103,24 +121,14 @@ export default async function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>VetCare CR</td>
-                  <td>Veterinaria</td>
-                  <td>Activa</td>
-                  <td>3.8%</td>
-                </tr>
-                <tr>
-                  <td>Happy Groom</td>
-                  <td>Grooming</td>
-                  <td>Revisión</td>
-                  <td>2.1%</td>
-                </tr>
-                <tr>
-                  <td>PetMarket</td>
-                  <td>Tienda</td>
-                  <td>Pausada</td>
-                  <td>1.6%</td>
-                </tr>
+                {dashboard.partners.map((partner) => (
+                  <tr key={partner.id}>
+                    <td>{partner.name}</td>
+                    <td>{partner.category}</td>
+                    <td>{partner.status}</td>
+                    <td>{partner.ctr}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </article>
@@ -136,9 +144,13 @@ export default async function AdminPage() {
               <button className="ghost">Ver cola</button>
             </div>
             <div className="moderation-list">
-              <div><span>🐕</span><strong>Ruta en La Sabana</strong><small>Aprobada</small></div>
-              <div><span>🐈</span><strong>Recomendación de rascador</strong><small>Aprobada</small></div>
-              <div><span>🐾</span><strong>Reporte comunitario</strong><small>Requiere revisión</small></div>
+              {dashboard.recentPosts.map((post) => (
+                <div key={post.id}>
+                  <span>{post.icon}</span>
+                  <strong>{post.label}</strong>
+                  <small>{post.status}</small>
+                </div>
+              ))}
             </div>
           </article>
 
@@ -146,13 +158,16 @@ export default async function AdminPage() {
             <div className="panel-head">
               <div>
                 <p>Seguridad</p>
-                <h2>Moderación y confianza</h2>
+                <h2>Moderacion y confianza</h2>
               </div>
               <button className="ghost">Reglas</button>
             </div>
             <div className="trust-box">
-              <strong>Prioridades del MVP</strong>
-              <p>Reportes, bloqueo de usuarios, aprobación de adopciones, verificación de empresas y revisión de anuncios antes de publicarlos.</p>
+              <strong>{formatNumber(dashboard.metrics.pendingReports)} reportes pendientes</strong>
+              <p>
+                Prioridades del MVP: reportes, bloqueo de usuarios, aprobacion de adopciones,
+                verificacion de empresas y revision de anuncios antes de publicarlos.
+              </p>
             </div>
           </article>
         </section>
