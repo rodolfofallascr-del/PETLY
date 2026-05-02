@@ -1134,6 +1134,25 @@ th,
   background: rgba(122, 167, 199, 0.22);
 }
 
+.admin-alert {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 20px;
+  font-weight: 800;
+}
+
+.admin-alert.success {
+  color: #286049;
+  background: rgba(88, 171, 133, 0.18);
+  border: 1px solid rgba(88, 171, 133, 0.22);
+}
+
+.admin-alert.error {
+  color: #8b2f21;
+  background: rgba(217, 121, 91, 0.16);
+  border: 1px solid rgba(217, 121, 91, 0.22);
+}
+
 .admin-list {
   display: grid;
   gap: 0.65rem;

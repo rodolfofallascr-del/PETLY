@@ -16,8 +16,15 @@ function formatCurrencyFromCents(value: number) {
   }).format(value / 100);
 }
 
-export default async function AdminPage() {
+type AdminPageProps = {
+  searchParams?: Promise<{
+    seed?: string;
+  }>;
+};
+
+export default async function AdminPage({ searchParams }: AdminPageProps) {
   const session = await requireRole("ADMIN");
+  const params = await searchParams;
   const dashboard = await getAdminDashboardData();
   const estimatedRevenueCents = dashboard.metrics.clicks * 25;
   const engagement =
@@ -56,6 +63,16 @@ export default async function AdminPage() {
             </form>
           </div>
         </header>
+
+        {params?.seed === "success" ? (
+          <div className="admin-alert success">Datos demo cargados correctamente.</div>
+        ) : null}
+
+        {params?.seed === "error" ? (
+          <div className="admin-alert error">
+            No se pudieron cargar los datos demo. Revisa que `DATABASE_URL` apunte a Supabase y que el SQL inicial este aplicado.
+          </div>
+        ) : null}
 
         <section className="metrics" id="resumen">
           <article>
