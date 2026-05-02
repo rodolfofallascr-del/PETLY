@@ -1,0 +1,308 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  BUSINESS
+  ADMIN
+}
+
+enum PetSpecies {
+  DOG
+  CAT
+  RABBIT
+  BIRD
+  REPTILE
+  OTHER
+}
+
+enum PostVisibility {
+  PUBLIC
+  FRIENDS
+  PRIVATE
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FLAGGED
+}
+
+enum CampaignStatus {
+  DRAFT
+  REVIEW
+  ACTIVE
+  PAUSED
+  COMPLETED
+  REJECTED
+}
+
+enum AdPlacement {
+  FEED_NATIVE
+  STORY
+  SIDEBAR
+  DIRECTORY
+  EVENT
+}
+
+enum AdoptionStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ADOPTED
+  CLOSED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  username      String    @unique
+  avatarUrl     String?
+  role          UserRole  @default(USER)
+  city          String?
+  country       String?   @default("Costa Rica")
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  pets             Pet[]
+  posts            Post[]
+  comments         Comment[]
+  reactions        Reaction[]
+  businessesOwned  Business[]
+  reportsMade      Report[]    @relation("Reporter")
+  reportsReceived  Report[]    @relation("ReportedUser")
+
+  @@index([role])
+  @@index([city, country])
+}
+
+model Pet {
+  id          String     @id @default(cuid())
+  ownerId     String
+  name        String
+  species     PetSpecies
+  breed       String?
+  birthDate   DateTime?
+  bio         String?
+  personality String?
+  avatarUrl   String?
+  city        String?
+  country     String?    @default("Costa Rica")
+  isPublic    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  owner      User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  posts      Post[]
+  adoptions  Adoption[]
+
+  @@index([ownerId])
+  @@index([species])
+  @@index([city, country])
+}
+
+model Post {
+  id               String             @id @default(cuid())
+  authorId         String
+  petId            String?
+  body             String
+  mediaUrls        String[]
+  visibility       PostVisibility     @default(PUBLIC)
+  moderationStatus ModerationStatus   @default(APPROVED)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  author     User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  pet        Pet?       @relation(fields: [petId], references: [id], onDelete: SetNull)
+  comments   Comment[]
+  reactions  Reaction[]
+  reports    Report[]
+
+  @@index([authorId, createdAt])
+  @@index([petId])
+  @@index([moderationStatus])
+}
+
+model Comment {
+  id               String             @id @default(cuid())
+  postId           String
+  authorId         String
+  body             String
+  moderationStatus ModerationStatus   @default(APPROVED)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  post    Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author  User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+  @@index([authorId])
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  type      String   @default("LIKE")
+  createdAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId, type])
+  @@index([userId])
+}
+
+model Business {
+  id          String   @id @default(cuid())
+  ownerId     String
+  name        String
+  slug        String   @unique
+  category    String
+  description String?
+  website     String?
+  phone       String?
+  city        String?
+  country     String?  @default("Costa Rica")
+  verified    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  owner      User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  campaigns  Campaign[]
+
+  @@index([category])
+  @@index([verified])
+  @@index([city, country])
+}
+
+model Campaign {
+  id          String         @id @default(cuid())
+  businessId  String
+  name        String
+  status      CampaignStatus @default(DRAFT)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  budgetCents Int            @default(0)
+  currency    String         @default("USD")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  ads      Ad[]
+
+  @@index([businessId])
+  @@index([status])
+  @@index([startsAt, endsAt])
+}
+
+model Ad {
+  id               String           @id @default(cuid())
+  campaignId       String
+  placement         AdPlacement
+  title             String
+  body              String
+  imageUrl          String?
+  targetUrl         String
+  moderationStatus  ModerationStatus @default(PENDING)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  campaign    Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  impressions AdImpression[]
+  clicks      AdClick[]
+
+  @@index([campaignId])
+  @@index([placement])
+  @@index([moderationStatus])
+}
+
+model AdImpression {
+  id        String   @id @default(cuid())
+  adId      String
+  userId    String?
+  placement AdPlacement
+  createdAt DateTime @default(now())
+
+  ad Ad @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  @@index([adId, createdAt])
+  @@index([placement, createdAt])
+}
+
+model AdClick {
+  id        String   @id @default(cuid())
+  adId      String
+  userId    String?
+  createdAt DateTime @default(now())
+
+  ad Ad @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  @@index([adId, createdAt])
+}
+
+model Adoption {
+  id          String         @id @default(cuid())
+  petId       String
+  title       String
+  story       String
+  status      AdoptionStatus @default(REVIEW)
+  contactName String
+  contactInfo String
+  city        String?
+  country     String?        @default("Costa Rica")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  pet Pet @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([city, country])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  startsAt    DateTime
+  endsAt      DateTime?
+  location    String
+  city        String?
+  country     String?  @default("Costa Rica")
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([startsAt])
+  @@index([city, country])
+}
+
+model Report {
+  id             String           @id @default(cuid())
+  reporterId     String
+  reportedUserId String?
+  postId         String?
+  reason         String
+  details        String?
+  status         ModerationStatus @default(PENDING)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  reporter     User  @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser User? @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: SetNull)
+  post         Post? @relation(fields: [postId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([reporterId])
+  @@index([reportedUserId])
+  @@index([postId])
+}
+

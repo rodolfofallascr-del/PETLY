@@ -1,0 +1,155 @@
+﻿<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Petly Admin | Panel de crecimiento</title>
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <aside class="admin-sidebar">
+      <a class="brand" href="index.html"><span>P</span> Petly</a>
+      <nav>
+        <a class="active" href="#resumen">Resumen</a>
+        <a href="#usuarios">Usuarios</a>
+        <a href="#contenido">Contenido</a>
+        <a href="#anuncios">Anuncios</a>
+        <a href="#partners">Partners</a>
+        <a href="#moderacion">Moderación</a>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <div>
+          <p>Panel administrativo</p>
+          <h1>Centro de crecimiento y monetización</h1>
+        </div>
+        <button>Crear campaña</button>
+      </header>
+
+      <section class="metrics" id="resumen">
+        <article>
+          <span>Usuarios activos</span>
+          <strong>18,420</strong>
+          <small>+12.4% este mes</small>
+        </article>
+        <article>
+          <span>Mascotas registradas</span>
+          <strong>27,905</strong>
+          <small>1.5 mascotas por usuario</small>
+        </article>
+        <article>
+          <span>Ingresos estimados</span>
+          <strong>$6,840</strong>
+          <small>Google Ads + campañas privadas</small>
+        </article>
+        <article>
+          <span>Engagement</span>
+          <strong>41%</strong>
+          <small>Publicaciones, likes y comentarios</small>
+        </article>
+      </section>
+
+      <section class="grid-two">
+        <article class="panel" id="anuncios">
+          <div class="panel-head">
+            <div>
+              <p>Anuncios</p>
+              <h2>Inventario publicitario</h2>
+            </div>
+            <button class="ghost">Configurar</button>
+          </div>
+          <div class="ad-list">
+            <div>
+              <strong>Feed nativo</strong>
+              <span>Google AdSense / Ad Manager</span>
+              <em>Activo</em>
+            </div>
+            <div>
+              <strong>Historias patrocinadas</strong>
+              <span>Marcas privadas</span>
+              <em>Disponible</em>
+            </div>
+            <div>
+              <strong>Directorio premium</strong>
+              <span>Veterinarias, groomers, tiendas</span>
+              <em>En diseño</em>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel" id="partners">
+          <div class="panel-head">
+            <div>
+              <p>Partners privados</p>
+              <h2>Campañas comerciales</h2>
+            </div>
+            <button class="ghost">Nuevo partner</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Empresa</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>CTR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>VetCare CR</td>
+                <td>Veterinaria</td>
+                <td>Activa</td>
+                <td>3.8%</td>
+              </tr>
+              <tr>
+                <td>Happy Groom</td>
+                <td>Grooming</td>
+                <td>Revisión</td>
+                <td>2.1%</td>
+              </tr>
+              <tr>
+                <td>PetMarket</td>
+                <td>Tienda</td>
+                <td>Pausada</td>
+                <td>1.6%</td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+
+      <section class="grid-two">
+        <article class="panel" id="contenido">
+          <div class="panel-head">
+            <div>
+              <p>Contenido</p>
+              <h2>Publicaciones recientes</h2>
+            </div>
+            <button class="ghost">Ver cola</button>
+          </div>
+          <div class="moderation-list">
+            <div><span>🐕</span><strong>Ruta en La Sabana</strong><small>Aprobada</small></div>
+            <div><span>🐈</span><strong>Recomendación de rascador</strong><small>Aprobada</small></div>
+            <div><span>🐾</span><strong>Reporte comunitario</strong><small>Requiere revisión</small></div>
+          </div>
+        </article>
+
+        <article class="panel" id="moderacion">
+          <div class="panel-head">
+            <div>
+              <p>Seguridad</p>
+              <h2>Moderación y confianza</h2>
+            </div>
+            <button class="ghost">Reglas</button>
+          </div>
+          <div class="trust-box">
+            <strong>Prioridades del MVP</strong>
+            <p>Reportes, bloqueo de usuarios, aprobación de adopciones, verificación de empresas y revisión de anuncios antes de publicarlos.</p>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

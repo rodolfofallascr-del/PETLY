@@ -1,0 +1,606 @@
+﻿:root {
+  --ink: #243028;
+  --muted: #68746b;
+  --cream: #fbf4e4;
+  --card: rgba(255, 252, 244, 0.82);
+  --mint: #a8d8bd;
+  --terra: #f28f5b;
+  --sun: #ffd166;
+  --sky: #8fc7d5;
+  --shadow: 0 24px 80px rgba(48, 61, 47, 0.16);
+  --radius: 30px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: "Aptos Display", "Segoe UI Variable Display", "Trebuchet MS", sans-serif;
+  background:
+    radial-gradient(circle at 12% 15%, rgba(255, 209, 102, 0.45), transparent 28rem),
+    radial-gradient(circle at 85% 10%, rgba(143, 199, 213, 0.45), transparent 30rem),
+    linear-gradient(135deg, #fff7e5 0%, #e8f4df 48%, #f7ded0 100%);
+  overflow-x: hidden;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ambient {
+  position: fixed;
+  z-index: -1;
+  border-radius: 999px;
+  filter: blur(10px);
+  opacity: 0.72;
+  animation: drift 14s ease-in-out infinite alternate;
+}
+
+.ambient-one {
+  width: 18rem;
+  height: 18rem;
+  left: -4rem;
+  bottom: 8rem;
+  background: rgba(168, 216, 189, 0.72);
+}
+
+.ambient-two {
+  width: 22rem;
+  height: 22rem;
+  right: -7rem;
+  top: 18rem;
+  background: rgba(242, 143, 91, 0.36);
+  animation-delay: -4s;
+}
+
+.topbar {
+  position: sticky;
+  top: 1rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(1180px, calc(100% - 2rem));
+  margin: 1rem auto 0;
+  padding: 0.75rem;
+  border: 1px solid rgba(36, 48, 40, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 250, 238, 0.72);
+  box-shadow: 0 14px 44px rgba(65, 85, 65, 0.12);
+  backdrop-filter: blur(18px);
+}
+
+.brand,
+.nav,
+.hero-actions,
+.post-actions,
+.profile-mini,
+.post-header,
+.composer {
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  gap: 0.65rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  font-size: 1.35rem;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 2.45rem;
+  height: 2.45rem;
+  border-radius: 50%;
+  color: #fff8e6;
+  background: var(--ink);
+}
+
+.nav {
+  gap: 1.25rem;
+  color: var(--muted);
+  font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-size: 0.95rem;
+}
+
+.primary-action,
+.button,
+.event-card button {
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-weight: 800;
+}
+
+.primary-action {
+  padding: 0.9rem 1.2rem;
+  color: var(--ink);
+  background: var(--sun);
+}
+
+main {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) 390px;
+  gap: 2rem;
+  align-items: center;
+  min-height: 680px;
+  padding: 4rem 0 2rem;
+}
+
+.eyebrow,
+.tiny-label {
+  margin: 0 0 0.8rem;
+  color: #7d5d30;
+  font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  max-width: 780px;
+  margin-bottom: 1.25rem;
+  font-size: clamp(3.3rem, 8vw, 7.4rem);
+  line-height: 0.89;
+  letter-spacing: -0.055em;
+}
+
+.hero-text {
+  max-width: 650px;
+  color: var(--muted);
+  font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-size: 1.2rem;
+  line-height: 1.7;
+}
+
+.hero-actions {
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+
+.button {
+  padding: 1rem 1.35rem;
+}
+
+.button-dark {
+  color: #fff8e8;
+  background: var(--ink);
+}
+
+.button-light {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(36, 48, 40, 0.12);
+}
+
+.panel,
+.pet-card {
+  border: 1px solid rgba(36, 48, 40, 0.1);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.hero-card {
+  position: relative;
+  padding: 1.2rem;
+  transform: rotate(2deg);
+  animation: pop-in 800ms ease both;
+}
+
+.pet-photo {
+  display: grid;
+  place-items: center;
+  min-height: 280px;
+  margin-bottom: 1rem;
+  border-radius: 24px;
+  font-size: 8rem;
+  background:
+    linear-gradient(145deg, rgba(255, 209, 102, 0.76), rgba(168, 216, 189, 0.86)),
+    repeating-linear-gradient(45deg, transparent, transparent 16px, rgba(255, 255, 255, 0.24) 17px, rgba(255, 255, 255, 0.24) 19px);
+}
+
+.hero-card h2 {
+  margin-bottom: 0.2rem;
+  font-size: 2.2rem;
+}
+
+.hero-card p,
+.hero-card span,
+.post-card p,
+.event-card p,
+.adoption-card p,
+.roadmap p,
+small {
+  color: var(--muted);
+  font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  line-height: 1.55;
+}
+
+.pet-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+  margin-top: 1.25rem;
+}
+
+.pet-stats span {
+  padding: 0.85rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.58);
+  font-size: 0.82rem;
+}
+
+.pet-stats strong {
+  display: block;
+  color: var(--ink);
+  font-size: 1.2rem;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr) 290px;
+  gap: 1.1rem;
+  align-items: start;
+  padding: 2rem 0;
+}
+
+.sidebar,
+.feed,
+.right-rail .panel {
+  padding: 1rem;
+}
+
+.sidebar,
+.right-rail {
+  position: sticky;
+  top: 6.5rem;
+}
+
+.panel h2 {
+  margin-bottom: 1rem;
+  letter-spacing: -0.035em;
+}
+
+.profile-mini {
+  gap: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 0.65rem;
+  border-radius: 19px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.profile-mini.active {
+  background: var(--ink);
+  color: #fff8e6;
+}
+
+.profile-mini span,
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--sun);
+  font-size: 1.35rem;
+}
+
+.profile-mini small,
+.profile-mini strong {
+  display: block;
+}
+
+.profile-mini.active small {
+  color: rgba(255, 248, 230, 0.72);
+}
+
+.health-box {
+  margin-top: 1.4rem;
+  padding: 1rem;
+  border-radius: 22px;
+  background: rgba(168, 216, 189, 0.55);
+}
+
+.health-box span {
+  display: block;
+  margin-top: 0.45rem;
+  color: var(--muted);
+  font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-size: 0.9rem;
+}
+
+.feed {
+  display: grid;
+  gap: 1rem;
+}
+
+.composer {
+  gap: 0.8rem;
+}
+
+.composer button {
+  width: 100%;
+  padding: 1rem;
+  border: 1px dashed rgba(36, 48, 40, 0.2);
+  border-radius: 999px;
+  color: var(--muted);
+  text-align: left;
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+}
+
+.post-card {
+  padding: 1rem;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.post-header {
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.post-header strong,
+.post-header small {
+  display: block;
+}
+
+.avatar.warm {
+  background: var(--terra);
+}
+
+.avatar.cool {
+  background: var(--sky);
+}
+
+.post-media {
+  min-height: 250px;
+  display: flex;
+  align-items: end;
+  padding: 1rem;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.park-scene {
+  background:
+    radial-gradient(circle at 22% 20%, #fff7d1 0 8%, transparent 9%),
+    linear-gradient(150deg, rgba(143, 199, 213, 0.9) 0 34%, transparent 35%),
+    linear-gradient(20deg, #6da676 0 42%, #bfe3b4 43% 100%);
+}
+
+.post-media span {
+  padding: 0.55rem 0.8rem;
+  border-radius: 999px;
+  color: #fff8e6;
+  background: rgba(36, 48, 40, 0.82);
+  font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-weight: 800;
+}
+
+.post-actions {
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.post-actions button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.65rem 0.8rem;
+  color: var(--ink);
+  background: rgba(255, 209, 102, 0.45);
+  cursor: pointer;
+}
+
+.poll {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.poll span {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.8rem;
+  border-radius: 16px;
+  font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.poll span::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--value);
+  background: rgba(168, 216, 189, 0.55);
+}
+
+.poll strong,
+.poll span {
+  z-index: 1;
+}
+
+.right-rail {
+  display: grid;
+  gap: 1rem;
+}
+
+.nearby-grid {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.nearby-grid div {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.75rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.54);
+}
+
+.event-card {
+  background: linear-gradient(145deg, rgba(36, 48, 40, 0.92), rgba(69, 92, 75, 0.9));
+  color: #fff8e6;
+}
+
+.event-card p,
+.event-card .tiny-label {
+  color: rgba(255, 248, 230, 0.72);
+}
+
+.event-card button {
+  width: 100%;
+  padding: 0.85rem;
+  color: var(--ink);
+  background: var(--sun);
+}
+
+.adoption-card a {
+  display: inline-flex;
+  margin-top: 0.4rem;
+  color: #7d3f20;
+  font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-weight: 900;
+}
+
+.roadmap {
+  padding: 5rem 0 6rem;
+}
+
+.roadmap h2 {
+  max-width: 760px;
+  font-size: clamp(2.4rem, 5vw, 4.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.052em;
+}
+
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.roadmap-grid article {
+  min-height: 240px;
+  padding: 1.1rem;
+  border-radius: 28px;
+  background: rgba(255, 252, 244, 0.72);
+  border: 1px solid rgba(36, 48, 40, 0.1);
+}
+
+.roadmap-grid span {
+  display: inline-grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-bottom: 2rem;
+  border-radius: 50%;
+  color: #fff8e6;
+  background: var(--ink);
+  font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-weight: 900;
+}
+
+.roadmap-grid h3 {
+  margin-bottom: 0.55rem;
+  font-size: 1.45rem;
+  letter-spacing: -0.035em;
+}
+
+@keyframes drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(2rem, -1rem, 0) scale(1.08); }
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(24px) rotate(-2deg); }
+  to { opacity: 1; transform: translateY(0) rotate(2deg); }
+}
+
+@media (max-width: 980px) {
+  .nav {
+    display: none;
+  }
+
+  .hero,
+  .app-shell,
+  .roadmap-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar,
+  .right-rail {
+    position: static;
+  }
+
+  .hero {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .topbar {
+    top: 0.5rem;
+    width: calc(100% - 1rem);
+  }
+
+  .primary-action {
+    display: none;
+  }
+
+  main {
+    width: min(100% - 1rem, 1180px);
+  }
+
+  h1 {
+    font-size: 3.4rem;
+  }
+
+  .hero-actions,
+  .pet-stats {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .hero-card {
+    transform: none;
+  }
+}
+
