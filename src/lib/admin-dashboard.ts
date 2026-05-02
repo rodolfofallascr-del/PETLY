@@ -19,6 +19,13 @@ export type AdminDashboardData = {
     status: string;
     icon: string;
   }>;
+  recentUsers: Array<{
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    pets: number;
+  }>;
   partners: Array<{
     id: string;
     name: string;
@@ -53,6 +60,15 @@ const fallbackDashboard: AdminDashboardData = {
       label: "Aun no hay publicaciones reales",
       status: "Esperando actividad",
       icon: "P",
+    },
+  ],
+  recentUsers: [
+    {
+      id: "fallback-user-1",
+      name: "Sin usuarios reales",
+      email: "Conecta actividad o carga datos demo",
+      role: "PENDIENTE",
+      pets: 0,
     },
   ],
   partners: [
@@ -98,6 +114,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       clicks,
       pendingReports,
       recentPosts,
+      recentUsers,
       partners,
       adInventory,
     ] = await Promise.all([
@@ -120,6 +137,21 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
           pet: {
             select: {
               species: true,
+            },
+          },
+        },
+      }),
+      prisma.user.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          _count: {
+            select: {
+              pets: true,
             },
           },
         },
@@ -181,6 +213,15 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
             icon: post.pet?.species === "CAT" ? "C" : post.pet?.species === "DOG" ? "D" : "P",
           }))
         : fallbackDashboard.recentPosts,
+      recentUsers: recentUsers.length
+        ? recentUsers.map((user) => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            pets: user._count.pets,
+          }))
+        : fallbackDashboard.recentUsers,
       partners: partners.length
         ? partners.map((partner) => {
             const partnerTotals = partner.campaigns.reduce(

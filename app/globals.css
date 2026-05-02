@@ -1124,15 +1124,77 @@ th,
   font-weight: 800;
 }
 
+.admin-session form {
+  display: contents;
+}
+
 .admin-session button {
   padding: 0.7rem 0.95rem;
   color: #172027;
   background: rgba(122, 167, 199, 0.22);
 }
 
+.admin-list {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.9rem;
+}
+
+.admin-list div {
+  display: grid;
+  grid-template-columns: auto 1fr 1.5fr auto auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.85rem;
+  border: 1px solid rgba(23, 32, 39, 0.06);
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.72);
+}
+
+.admin-list span {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  color: #315d78;
+  background: rgba(122, 167, 199, 0.2);
+  font-weight: 900;
+}
+
+.admin-list strong,
+.admin-list small,
+.admin-list em {
+  min-width: 0;
+}
+
+.admin-list small {
+  color: var(--muted);
+}
+
+.admin-list em {
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  color: #7d3d27;
+  background: rgba(244, 184, 96, 0.22);
+  font-style: normal;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
 @media (max-width: 620px) {
   .admin-session {
     justify-self: stretch;
     justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .admin-list div {
+    grid-template-columns: auto 1fr;
+  }
+
+  .admin-list em,
+  .admin-list small:last-child {
+    grid-column: 2;
   }
 }

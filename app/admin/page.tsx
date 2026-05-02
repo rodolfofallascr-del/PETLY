@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AdminNav } from "./AdminNav";
-import { logoutAction } from "./actions";
+import { logoutAction, seedDemoDataAction } from "./actions";
 import { getAdminDashboardData } from "@/src/lib/admin-dashboard";
 import { requireRole } from "@/src/lib/auth";
 
@@ -48,6 +48,9 @@ export default async function AdminPage() {
           </div>
           <div className="admin-session">
             <span>{session.name}</span>
+            <form action={seedDemoDataAction}>
+              <button type="submit">Cargar demo</button>
+            </form>
             <form action={logoutAction}>
               <button type="submit">Salir</button>
             </form>
@@ -101,6 +104,17 @@ export default async function AdminPage() {
               <strong>Empresas</strong>
               <small>Partners, servicios y anunciantes</small>
             </article>
+          </div>
+          <div className="admin-list">
+            {dashboard.recentUsers.map((user) => (
+              <div key={user.id}>
+                <span>{user.name.slice(0, 1).toUpperCase()}</span>
+                <strong>{user.name}</strong>
+                <small>{user.email}</small>
+                <em>{user.role}</em>
+                <small>{formatNumber(user.pets)} mascotas</small>
+              </div>
+            ))}
           </div>
         </section>
 
