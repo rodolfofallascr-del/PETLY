@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminNav } from "./AdminNav";
 import { logoutAction } from "./actions";
 import { getAdminDashboardData } from "@/src/lib/admin-dashboard";
 import { requireRole } from "@/src/lib/auth";
@@ -30,14 +31,7 @@ export default async function AdminPage() {
         <Link className="admin-brand" href="/">
           <span>P</span> Petly
         </Link>
-        <nav className="admin-nav">
-          <a className="active" href="#resumen">Resumen</a>
-          <a href="#usuarios">Usuarios</a>
-          <a href="#contenido">Contenido</a>
-          <a href="#anuncios">Anuncios</a>
-          <a href="#partners">Partners</a>
-          <a href="#moderacion">Moderacion</a>
-        </nav>
+        <AdminNav />
       </aside>
 
       <main className="admin-main">
@@ -81,6 +75,52 @@ export default async function AdminPage() {
             <strong>{engagement}%</strong>
             <small>{formatNumber(dashboard.metrics.impressions)} impresiones registradas</small>
           </article>
+        </section>
+
+        <section className="admin-section" id="usuarios">
+          <div className="section-head">
+            <div>
+              <p>Usuarios</p>
+              <h2>Comunidad y perfiles</h2>
+            </div>
+            <button className="ghost">Exportar</button>
+          </div>
+          <div className="admin-feature-grid">
+            <article>
+              <span>{formatNumber(dashboard.metrics.users)}</span>
+              <strong>Usuarios</strong>
+              <small>Cuentas registradas en Petly</small>
+            </article>
+            <article>
+              <span>{formatNumber(dashboard.metrics.pets)}</span>
+              <strong>Mascotas</strong>
+              <small>Perfiles creados por la comunidad</small>
+            </article>
+            <article>
+              <span>{formatNumber(dashboard.metrics.businesses)}</span>
+              <strong>Empresas</strong>
+              <small>Partners, servicios y anunciantes</small>
+            </article>
+          </div>
+        </section>
+
+        <section className="admin-section" id="contenido">
+          <div className="section-head">
+            <div>
+              <p>Contenido</p>
+              <h2>Publicaciones recientes</h2>
+            </div>
+            <button className="ghost">Ver cola</button>
+          </div>
+          <div className="moderation-list">
+            {dashboard.recentPosts.map((post) => (
+              <div key={post.id}>
+                <span>{post.icon}</span>
+                <strong>{post.label}</strong>
+                <small>{post.status}</small>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="grid-two">
@@ -134,42 +174,21 @@ export default async function AdminPage() {
           </article>
         </section>
 
-        <section className="grid-two">
-          <article className="admin-panel" id="contenido">
-            <div className="panel-head">
-              <div>
-                <p>Contenido</p>
-                <h2>Publicaciones recientes</h2>
-              </div>
-              <button className="ghost">Ver cola</button>
+        <section className="admin-section" id="moderacion">
+          <div className="section-head">
+            <div>
+              <p>Seguridad</p>
+              <h2>Moderacion y confianza</h2>
             </div>
-            <div className="moderation-list">
-              {dashboard.recentPosts.map((post) => (
-                <div key={post.id}>
-                  <span>{post.icon}</span>
-                  <strong>{post.label}</strong>
-                  <small>{post.status}</small>
-                </div>
-              ))}
-            </div>
-          </article>
-
-          <article className="admin-panel" id="moderacion">
-            <div className="panel-head">
-              <div>
-                <p>Seguridad</p>
-                <h2>Moderacion y confianza</h2>
-              </div>
-              <button className="ghost">Reglas</button>
-            </div>
-            <div className="trust-box">
-              <strong>{formatNumber(dashboard.metrics.pendingReports)} reportes pendientes</strong>
-              <p>
-                Prioridades del MVP: reportes, bloqueo de usuarios, aprobacion de adopciones,
-                verificacion de empresas y revision de anuncios antes de publicarlos.
-              </p>
-            </div>
-          </article>
+            <button className="ghost">Reglas</button>
+          </div>
+          <div className="trust-box">
+            <strong>{formatNumber(dashboard.metrics.pendingReports)} reportes pendientes</strong>
+            <p>
+              Prioridades del MVP: reportes, bloqueo de usuarios, aprobacion de adopciones,
+              verificacion de empresas y revision de anuncios antes de publicarlos.
+            </p>
+          </div>
         </section>
       </main>
     </div>

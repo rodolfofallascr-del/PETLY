@@ -753,10 +753,12 @@ a { color: inherit; text-decoration: none; }
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   margin-bottom: 1rem;
+  scroll-margin-top: 1.5rem;
 }
 
 .metrics article,
-.admin-panel {
+.admin-panel,
+.admin-section {
   border: 1px solid var(--line);
   border-radius: 28px;
   background: var(--panel);
@@ -802,21 +804,67 @@ th,
   margin-top: 1rem;
 }
 
-.admin-panel {
+.admin-panel,
+.admin-section {
   padding: 1rem;
+  scroll-margin-top: 1.5rem;
 }
 
-.panel-head {
+.panel-head,
+.section-head {
   grid-template-columns: 1fr auto;
   gap: 1rem;
   align-items: center;
   margin-bottom: 1rem;
 }
 
-.panel-head h2 {
+.panel-head h2,
+.section-head h2 {
   margin: 0;
   font-family: "Aptos Display", "Segoe UI Variable Display", "Trebuchet MS", sans-serif;
   letter-spacing: -0.035em;
+}
+
+.section-head p {
+  margin: 0 0 0.4rem;
+  color: #9a5b35;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+}
+
+.admin-feature-grid article {
+  padding: 1rem;
+  border: 1px solid rgba(23, 32, 39, 0.06);
+  border-radius: 22px;
+  background: rgba(248, 250, 252, 0.72);
+}
+
+.admin-feature-grid span,
+.admin-feature-grid strong,
+.admin-feature-grid small {
+  display: block;
+}
+
+.admin-feature-grid span {
+  margin-bottom: 0.4rem;
+  color: var(--ink);
+  font-family: "Aptos Display", "Segoe UI Variable Display", "Trebuchet MS", sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.admin-feature-grid small {
+  margin-top: 0.25rem;
+  color: var(--muted);
 }
 
 .ghost {
@@ -914,7 +962,8 @@ th,
 
   .metrics,
   .grid-two,
-  .admin-header {
+  .admin-header,
+  .admin-feature-grid {
     grid-template-columns: 1fr;
   }
 }
