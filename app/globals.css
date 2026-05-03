@@ -1334,6 +1334,10 @@ th,
   grid-template-columns: auto 1fr 1.2fr 1.4fr auto auto;
 }
 
+.admin-list.compact .empty-state {
+  grid-template-columns: auto 1fr;
+}
+
 .admin-list span {
   display: grid;
   place-items: center;
@@ -1363,6 +1367,10 @@ th,
   font-style: normal;
   font-size: 0.82rem;
   font-weight: 900;
+}
+
+.empty-state small {
+  grid-column: 2;
 }
 
 .moderation-actions {

@@ -411,15 +411,13 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
             canReject: ad.moderationStatus !== "REJECTED",
           }))
         : fallbackDashboard.adInventory,
-      moderationQueue: pendingReports
-        ? moderationQueue.map((report) => ({
-            id: report.id,
-            reason: report.reason,
-            status: report.status,
-            target: report.post?.body.slice(0, 42) ?? report.reportedUser?.name ?? "Reporte general",
-            details: report.details ?? "Sin detalles adicionales.",
-          }))
-        : fallbackDashboard.moderationQueue,
+      moderationQueue: moderationQueue.map((report) => ({
+        id: report.id,
+        reason: report.reason,
+        status: report.status,
+        target: report.post?.body.slice(0, 42) ?? report.reportedUser?.name ?? "Reporte general",
+        details: report.details ?? "Sin detalles adicionales.",
+      })),
       moderationHistory: moderationHistory.length
         ? moderationHistory.map((log) => ({
             id: log.id,

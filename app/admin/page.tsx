@@ -347,29 +347,37 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             </article>
           </div>
           <div className="admin-list compact">
-            {dashboard.moderationQueue.map((report) => (
-              <div key={report.id}>
-                <span>!</span>
-                <strong>{report.reason}</strong>
-                <small>{report.target}</small>
-                <small>{report.details}</small>
-                <em>{report.status}</em>
-                <div className="moderation-actions">
-                  <form action={approveModerationReportAction}>
-                    <input type="hidden" name="reportId" value={report.id} />
-                    <button className="mini-action approve" type="submit">Aprobar</button>
-                  </form>
-                  <form action={rejectModerationReportAction}>
-                    <input type="hidden" name="reportId" value={report.id} />
-                    <button className="mini-action reject" type="submit">Rechazar</button>
-                  </form>
-                  <form action={resolveModerationReportAction}>
-                    <input type="hidden" name="reportId" value={report.id} />
-                    <button className="mini-action" type="submit">Resolver</button>
-                  </form>
+            {dashboard.moderationQueue.length ? (
+              dashboard.moderationQueue.map((report) => (
+                <div key={report.id}>
+                  <span>!</span>
+                  <strong>{report.reason}</strong>
+                  <small>{report.target}</small>
+                  <small>{report.details}</small>
+                  <em>{report.status}</em>
+                  <div className="moderation-actions">
+                    <form action={approveModerationReportAction}>
+                      <input type="hidden" name="reportId" value={report.id} />
+                      <button className="mini-action approve" type="submit">Aprobar</button>
+                    </form>
+                    <form action={rejectModerationReportAction}>
+                      <input type="hidden" name="reportId" value={report.id} />
+                      <button className="mini-action reject" type="submit">Rechazar</button>
+                    </form>
+                    <form action={resolveModerationReportAction}>
+                      <input type="hidden" name="reportId" value={report.id} />
+                      <button className="mini-action" type="submit">Resolver</button>
+                    </form>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="empty-state">
+                <span>OK</span>
+                <strong>No hay reportes pendientes</strong>
+                <small>Cuando el algoritmo o los usuarios reporten contenido, aparecera aqui para revision.</small>
               </div>
-            ))}
+            )}
           </div>
           <div className="moderation-history">
             <div className="section-head">
