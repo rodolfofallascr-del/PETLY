@@ -238,6 +238,8 @@ export async function seedDemoDataAction() {
 
 export async function scanContentModerationAction() {
   const session = await requireRole("ADMIN");
+  let flagged = 0;
+  let pending = 0;
 
   try {
     const posts = await prisma.post.findMany({
@@ -271,9 +273,6 @@ export async function scanContentModerationAction() {
         email: session.email,
       },
     });
-
-    let flagged = 0;
-    let pending = 0;
 
     for (const post of posts) {
       const result = analyzeContentModeration(post.body);
@@ -320,9 +319,10 @@ export async function scanContentModerationAction() {
     }
 
     revalidatePath("/admin");
-    redirect(`/admin?scan=success&flagged=${flagged}&pending=${pending}`);
   } catch (error) {
     console.error("Unable to run content moderation scan", error);
     redirect("/admin?scan=error");
   }
+
+  redirect(`/admin?scan=success&flagged=${flagged}&pending=${pending}`);
 }
