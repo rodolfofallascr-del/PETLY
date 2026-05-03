@@ -1,4 +1,5 @@
 import { prisma } from "@/src/lib/prisma";
+import { analyzeContentModeration } from "@/src/lib/content-moderation";
 
 export type AdminDashboardData = {
   source: "database" | "fallback";
@@ -18,6 +19,7 @@ export type AdminDashboardData = {
     label: string;
     status: string;
     icon: string;
+    risk: string;
   }>;
   recentUsers: Array<{
     id: string;
@@ -51,6 +53,7 @@ export type AdminDashboardData = {
     reason: string;
     status: string;
     target: string;
+    details: string;
   }>;
 };
 
@@ -73,12 +76,14 @@ const fallbackDashboard: AdminDashboardData = {
       label: "Luna descubrio una ruta nueva con sombra y espacio para correr.",
       status: "APPROVED",
       icon: "D",
+      risk: "Riesgo bajo",
     },
     {
       id: "fallback-post-2",
       label: "Misha busca recomendaciones de rascadores resistentes.",
       status: "APPROVED",
       icon: "C",
+      risk: "Riesgo bajo",
     },
   ],
   recentUsers: [
@@ -147,12 +152,14 @@ const fallbackDashboard: AdminDashboardData = {
       reason: "Revision de adopcion",
       status: "PENDING",
       target: "Toby busca hogar",
+      details: "Pendiente de revision manual.",
     },
     {
       id: "fallback-report-2",
       reason: "Verificacion de empresa",
       status: "PENDING",
       target: "Happy Groom",
+      details: "Pendiente de revision manual.",
     },
   ],
 };
@@ -277,6 +284,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
               name: true,
             },
           },
+          details: true,
         },
       }),
     ]);
@@ -295,12 +303,22 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
         pendingReports,
       },
       recentPosts: recentPosts.length
-        ? recentPosts.map((post) => ({
-            id: post.id,
-            label: post.body.slice(0, 54) || "Publicacion sin texto",
-            status: post.moderationStatus,
-            icon: post.pet?.species === "CAT" ? "C" : post.pet?.species === "DOG" ? "D" : "P",
-          }))
+        ? recentPosts.map((post) => {
+            const moderation = analyzeContentModeration(post.body);
+
+            return {
+              id: post.id,
+              label: post.body.slice(0, 54) || "Publicacion sin texto",
+              status: post.moderationStatus,
+              icon: post.pet?.species === "CAT" ? "C" : post.pet?.species === "DOG" ? "D" : "P",
+              risk:
+                moderation.score >= 60
+                  ? `Riesgo alto ${moderation.score}/100`
+                  : moderation.score >= 35
+                    ? `Riesgo medio ${moderation.score}/100`
+                    : `Riesgo bajo ${moderation.score}/100`,
+            };
+          })
         : fallbackDashboard.recentPosts,
       recentUsers: recentUsers.length
         ? recentUsers.map((user) => ({
@@ -355,6 +373,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
             reason: report.reason,
             status: report.status,
             target: report.post?.body.slice(0, 42) ?? report.reportedUser?.name ?? "Reporte general",
+            details: report.details ?? "Sin detalles adicionales.",
           }))
         : fallbackDashboard.moderationQueue,
     };

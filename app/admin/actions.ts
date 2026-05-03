@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { SESSION_COOKIE, requireRole } from "@/src/lib/auth";
+import { analyzeContentModeration, formatModerationDetails } from "@/src/lib/content-moderation";
 import { prisma } from "@/src/lib/prisma";
 
 export async function logoutAction() {
@@ -90,6 +91,47 @@ export async function seedDemoDataAction() {
         id: "demo-post-luna-route",
       },
     });
+
+    const flaggedPostAnalysis = analyzeContentModeration(
+      "Vendo cachorros golden, precio especial por inbox. Entrega inmediata.",
+    );
+
+    const flaggedPost = await prisma.post.upsert({
+      create: {
+        id: "demo-post-auto-flagged-sale",
+        authorId: user.id,
+        body: "Vendo cachorros golden, precio especial por inbox. Entrega inmediata.",
+        mediaUrls: [],
+        moderationStatus: flaggedPostAnalysis.status,
+        petId: pet.id,
+      },
+      update: {
+        moderationStatus: flaggedPostAnalysis.status,
+      },
+      where: {
+        id: "demo-post-auto-flagged-sale",
+      },
+    });
+
+    const existingAutoReport = await prisma.report.findFirst({
+      where: {
+        postId: flaggedPost.id,
+        reason: `Auto: ${flaggedPostAnalysis.primaryReason}`,
+      },
+    });
+
+    if (!existingAutoReport && flaggedPostAnalysis.status !== "APPROVED") {
+      await prisma.report.create({
+        data: {
+          details: formatModerationDetails(flaggedPostAnalysis),
+          postId: flaggedPost.id,
+          reason: `Auto: ${flaggedPostAnalysis.primaryReason}`,
+          reportedUserId: user.id,
+          reporterId: admin.id,
+          status: "PENDING",
+        },
+      });
+    }
 
     const business = await prisma.business.upsert({
       create: {
@@ -192,4 +234,95 @@ export async function seedDemoDataAction() {
   }
 
   redirect("/admin?seed=success");
+}
+
+export async function scanContentModerationAction() {
+  const session = await requireRole("ADMIN");
+
+  try {
+    const posts = await prisma.post.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 100,
+      where: {
+        moderationStatus: {
+          in: ["APPROVED", "PENDING"],
+        },
+      },
+      select: {
+        authorId: true,
+        body: true,
+        id: true,
+        moderationStatus: true,
+      },
+    });
+    const moderator = await prisma.user.upsert({
+      create: {
+        email: session.email,
+        name: session.name,
+        role: "ADMIN",
+        username: "admin",
+      },
+      update: {
+        role: "ADMIN",
+      },
+      where: {
+        email: session.email,
+      },
+    });
+
+    let flagged = 0;
+    let pending = 0;
+
+    for (const post of posts) {
+      const result = analyzeContentModeration(post.body);
+
+      if (result.status === "APPROVED") {
+        continue;
+      }
+
+      if (result.status === "FLAGGED") {
+        flagged += 1;
+      } else {
+        pending += 1;
+      }
+
+      await prisma.post.update({
+        data: {
+          moderationStatus: result.status,
+        },
+        where: {
+          id: post.id,
+        },
+      });
+
+      const reason = `Auto: ${result.primaryReason}`;
+      const existingReport = await prisma.report.findFirst({
+        where: {
+          postId: post.id,
+          reason,
+        },
+      });
+
+      if (!existingReport) {
+        await prisma.report.create({
+          data: {
+            details: formatModerationDetails(result),
+            postId: post.id,
+            reason,
+            reportedUserId: post.authorId,
+            reporterId: moderator.id,
+            status: "PENDING",
+          },
+        });
+      }
+    }
+
+    revalidatePath("/admin");
+    redirect(`/admin?scan=success&flagged=${flagged}&pending=${pending}`);
+  } catch (error) {
+    console.error("Unable to run content moderation scan", error);
+    redirect("/admin?scan=error");
+  }
 }

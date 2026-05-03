@@ -834,6 +834,10 @@ th,
   text-transform: uppercase;
 }
 
+.section-head form {
+  display: contents;
+}
+
 .admin-feature-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -931,13 +935,48 @@ th,
 }
 
 .moderation-list div {
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   gap: 0.8rem;
   align-items: center;
   padding: 0.85rem;
   border: 1px solid rgba(23, 32, 39, 0.06);
   border-radius: 18px;
   background: rgba(248, 250, 252, 0.72);
+}
+
+.moderation-list em {
+  padding: 0.32rem 0.55rem;
+  border-radius: 999px;
+  color: #315d78;
+  background: rgba(122, 167, 199, 0.2);
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.moderation-rules {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin: 0.85rem 0;
+}
+
+.moderation-rules article {
+  padding: 0.95rem;
+  border: 1px solid rgba(122, 167, 199, 0.24);
+  border-radius: 20px;
+  background: rgba(248, 250, 252, 0.68);
+}
+
+.moderation-rules strong,
+.moderation-rules span {
+  display: block;
+}
+
+.moderation-rules span {
+  margin-top: 0.4rem;
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 .trust-box {
@@ -1286,7 +1325,7 @@ th,
 }
 
 .admin-list.compact div {
-  grid-template-columns: auto 1fr 1.5fr auto;
+  grid-template-columns: auto 1fr 1.3fr 1.5fr auto;
 }
 
 .admin-list span {
@@ -1339,6 +1378,11 @@ th,
 
   .admin-list div {
     grid-template-columns: auto 1fr;
+  }
+
+  .moderation-list div,
+  .moderation-rules {
+    grid-template-columns: 1fr;
   }
 
   .admin-list em,

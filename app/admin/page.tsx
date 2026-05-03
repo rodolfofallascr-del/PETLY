@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AdminNav } from "./AdminNav";
-import { logoutAction, seedDemoDataAction } from "./actions";
+import { logoutAction, scanContentModerationAction, seedDemoDataAction } from "./actions";
 import { getAdminDashboardData } from "@/src/lib/admin-dashboard";
 import { requireRole } from "@/src/lib/auth";
 
@@ -18,6 +18,9 @@ function formatCurrencyFromCents(value: number) {
 
 type AdminPageProps = {
   searchParams?: Promise<{
+    flagged?: string;
+    pending?: string;
+    scan?: string;
     seed?: string;
   }>;
 };
@@ -71,6 +74,18 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         {params?.seed === "fallback" ? (
           <div className="admin-alert warning">
             Supabase aun no esta conectado con una URL valida. El panel queda en modo demo para continuar el desarrollo.
+          </div>
+        ) : null}
+
+        {params?.scan === "success" ? (
+          <div className="admin-alert success">
+            Escaneo completado: {params.flagged ?? "0"} publicaciones marcadas y {params.pending ?? "0"} en revision.
+          </div>
+        ) : null}
+
+        {params?.scan === "error" ? (
+          <div className="admin-alert warning">
+            No se pudo ejecutar el escaneo automatico. Revisa la conexion con Supabase.
           </div>
         ) : null}
 
@@ -151,6 +166,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 <span>{post.icon}</span>
                 <strong>{post.label}</strong>
                 <small>{post.status}</small>
+                <em>{post.risk}</em>
               </div>
             ))}
           </div>
@@ -220,14 +236,30 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               <p>Seguridad</p>
               <h2>Moderacion y confianza</h2>
             </div>
-            <button className="ghost">Reglas</button>
+            <form action={scanContentModerationAction}>
+              <button className="ghost" type="submit">Escanear publicaciones</button>
+            </form>
           </div>
           <div className="trust-box">
             <strong>{formatNumber(dashboard.metrics.pendingReports)} reportes pendientes</strong>
             <p>
-              Prioridades del MVP: reportes, bloqueo de usuarios, aprobacion de adopciones,
-              verificacion de empresas y revision de anuncios antes de publicarlos.
+              El algoritmo inicial detecta senales de venta de mascotas, drogas, estafas y contenido
+              fuera del tema. Las publicaciones sospechosas quedan marcadas para revision humana.
             </p>
+          </div>
+          <div className="moderation-rules">
+            <article>
+              <strong>Venta de mascotas</strong>
+              <span>Detecta frases como venta de cachorros, precio por mascota o compra directa.</span>
+            </article>
+            <article>
+              <strong>Drogas y sustancias</strong>
+              <span>Marca terminos de venta o promocion de drogas y sustancias no permitidas.</span>
+            </article>
+            <article>
+              <strong>Estafas y fuera de tema</strong>
+              <span>Prioriza apuestas, armas, contenido adulto y captacion economica sospechosa.</span>
+            </article>
           </div>
           <div className="admin-list compact">
             {dashboard.moderationQueue.map((report) => (
@@ -235,6 +267,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 <span>!</span>
                 <strong>{report.reason}</strong>
                 <small>{report.target}</small>
+                <small>{report.details}</small>
                 <em>{report.status}</em>
               </div>
             ))}
