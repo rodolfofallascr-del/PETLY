@@ -188,7 +188,7 @@ export async function seedDemoDataAction() {
     revalidatePath("/admin");
   } catch (error) {
     console.error("Unable to seed demo data", error);
-    redirect("/admin?seed=error");
+    redirect("/admin?seed=fallback");
   }
 
   redirect("/admin?seed=success");

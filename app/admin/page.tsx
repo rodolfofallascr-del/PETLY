@@ -68,9 +68,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           <div className="admin-alert success">Datos demo cargados correctamente.</div>
         ) : null}
 
-        {params?.seed === "error" ? (
-          <div className="admin-alert error">
-            No se pudieron cargar los datos demo. Revisa que `DATABASE_URL` apunte a Supabase y que el SQL inicial este aplicado.
+        {params?.seed === "fallback" ? (
+          <div className="admin-alert warning">
+            Supabase aun no esta conectado con una URL valida. El panel queda en modo demo para continuar el desarrollo.
           </div>
         ) : null}
 

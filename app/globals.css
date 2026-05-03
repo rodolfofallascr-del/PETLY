@@ -1153,6 +1153,12 @@ th,
   border: 1px solid rgba(217, 121, 91, 0.22);
 }
 
+.admin-alert.warning {
+  color: #8b5a16;
+  background: rgba(244, 184, 96, 0.2);
+  border: 1px solid rgba(244, 184, 96, 0.28);
+}
+
 .admin-list {
   display: grid;
   gap: 0.65rem;
