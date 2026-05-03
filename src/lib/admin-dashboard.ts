@@ -372,45 +372,41 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
             joinedAt: user.createdAt.toLocaleDateString("es-CR"),
           }))
         : fallbackDashboard.recentUsers,
-      partners: partners.length
-        ? partners.map((partner) => {
-            const partnerTotals = partner.campaigns.reduce(
-              (total, campaign) => {
-                campaign.ads.forEach((ad) => {
-                  total.clicks += ad._count.clicks;
-                  total.impressions += ad._count.impressions;
-                });
-                return total;
-              },
-              { clicks: 0, impressions: 0 },
-            );
-            const ads = partner.campaigns.reduce((total, campaign) => total + campaign.ads.length, 0);
+      partners: partners.map((partner) => {
+        const partnerTotals = partner.campaigns.reduce(
+          (total, campaign) => {
+            campaign.ads.forEach((ad) => {
+              total.clicks += ad._count.clicks;
+              total.impressions += ad._count.impressions;
+            });
+            return total;
+          },
+          { clicks: 0, impressions: 0 },
+        );
+        const ads = partner.campaigns.reduce((total, campaign) => total + campaign.ads.length, 0);
 
-            return {
-              id: partner.id,
-              name: partner.name,
-              category: partner.category,
-              status: partner.verified ? "Verificada" : "Revision",
-              ctr: calculateCtr(partnerTotals.clicks, partnerTotals.impressions),
-              campaigns: partner.campaigns.length,
-              ads,
-              verified: partner.verified,
-            };
-          })
-        : fallbackDashboard.partners,
-      adInventory: adInventory.length
-        ? adInventory.map((ad) => ({
-            id: ad.id,
-            title: ad.title,
-            channel: ad.placement.replaceAll("_", " ").toLowerCase(),
-            status: ad.moderationStatus,
-            impressions: ad._count.impressions,
-            clicks: ad._count.clicks,
-            ctr: calculateCtr(ad._count.clicks, ad._count.impressions),
-            canApprove: ad.moderationStatus !== "APPROVED",
-            canReject: ad.moderationStatus !== "REJECTED",
-          }))
-        : fallbackDashboard.adInventory,
+        return {
+          id: partner.id,
+          name: partner.name,
+          category: partner.category,
+          status: partner.verified ? "Verificada" : "Revision",
+          ctr: calculateCtr(partnerTotals.clicks, partnerTotals.impressions),
+          campaigns: partner.campaigns.length,
+          ads,
+          verified: partner.verified,
+        };
+      }),
+      adInventory: adInventory.map((ad) => ({
+        id: ad.id,
+        title: ad.title,
+        channel: ad.placement.replaceAll("_", " ").toLowerCase(),
+        status: ad.moderationStatus,
+        impressions: ad._count.impressions,
+        clicks: ad._count.clicks,
+        ctr: calculateCtr(ad._count.clicks, ad._count.impressions),
+        canApprove: ad.moderationStatus !== "APPROVED",
+        canReject: ad.moderationStatus !== "REJECTED",
+      })),
       moderationQueue: moderationQueue.map((report) => ({
         id: report.id,
         reason: report.reason,

@@ -236,30 +236,38 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               <button className="ghost">Configurar</button>
             </div>
             <div className="ad-list">
-              {dashboard.adInventory.map((ad) => (
-                <div key={ad.id}>
-                  <strong>{ad.title}</strong>
-                  <span>{ad.channel}</span>
-                  <em>{ad.status}</em>
-                  <small>{formatNumber(ad.impressions)} impresiones</small>
-                  <small>{formatNumber(ad.clicks)} clics</small>
-                  <small>CTR {ad.ctr}</small>
-                  <div className="monetization-actions">
-                    <form action={approveAdAction}>
-                      <input type="hidden" name="adId" value={ad.id} />
-                      <button className="mini-action approve" disabled={!ad.canApprove} type="submit">
-                        Aprobar
-                      </button>
-                    </form>
-                    <form action={rejectAdAction}>
-                      <input type="hidden" name="adId" value={ad.id} />
-                      <button className="mini-action reject" disabled={!ad.canReject} type="submit">
-                        Rechazar
-                      </button>
-                    </form>
+              {dashboard.adInventory.length ? (
+                dashboard.adInventory.map((ad) => (
+                  <div key={ad.id}>
+                    <strong>{ad.title}</strong>
+                    <span>{ad.channel}</span>
+                    <em>{ad.status}</em>
+                    <small>{formatNumber(ad.impressions)} impresiones</small>
+                    <small>{formatNumber(ad.clicks)} clics</small>
+                    <small>CTR {ad.ctr}</small>
+                    <div className="monetization-actions">
+                      <form action={approveAdAction}>
+                        <input type="hidden" name="adId" value={ad.id} />
+                        <button className="mini-action approve" disabled={!ad.canApprove} type="submit">
+                          Aprobar
+                        </button>
+                      </form>
+                      <form action={rejectAdAction}>
+                        <input type="hidden" name="adId" value={ad.id} />
+                        <button className="mini-action reject" disabled={!ad.canReject} type="submit">
+                          Rechazar
+                        </button>
+                      </form>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="empty-state">
+                  <span>ADS</span>
+                  <strong>No hay anuncios en revision</strong>
+                  <small>Cuando una empresa envie anuncios, apareceran aqui para aprobar o rechazar.</small>
                 </div>
-              ))}
+              )}
             </div>
           </article>
 
@@ -284,32 +292,43 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 </tr>
               </thead>
               <tbody>
-                {dashboard.partners.map((partner) => (
-                  <tr key={partner.id}>
-                    <td>{partner.name}</td>
-                    <td>{partner.category}</td>
-                    <td>{partner.status}</td>
-                    <td>{partner.ctr}</td>
-                    <td>{formatNumber(partner.campaigns)}</td>
-                    <td>{formatNumber(partner.ads)}</td>
-                    <td>
-                      <div className="monetization-actions">
-                        <form action={verifyBusinessAction}>
-                          <input type="hidden" name="businessId" value={partner.id} />
-                          <button className="mini-action approve" disabled={partner.verified} type="submit">
-                            Verificar
-                          </button>
-                        </form>
-                        <form action={unverifyBusinessAction}>
-                          <input type="hidden" name="businessId" value={partner.id} />
-                          <button className="mini-action reject" disabled={!partner.verified} type="submit">
-                            Retirar
-                          </button>
-                        </form>
+                {dashboard.partners.length ? (
+                  dashboard.partners.map((partner) => (
+                    <tr key={partner.id}>
+                      <td>{partner.name}</td>
+                      <td>{partner.category}</td>
+                      <td>{partner.status}</td>
+                      <td>{partner.ctr}</td>
+                      <td>{formatNumber(partner.campaigns)}</td>
+                      <td>{formatNumber(partner.ads)}</td>
+                      <td>
+                        <div className="monetization-actions">
+                          <form action={verifyBusinessAction}>
+                            <input type="hidden" name="businessId" value={partner.id} />
+                            <button className="mini-action approve" disabled={partner.verified} type="submit">
+                              Verificar
+                            </button>
+                          </form>
+                          <form action={unverifyBusinessAction}>
+                            <input type="hidden" name="businessId" value={partner.id} />
+                            <button className="mini-action reject" disabled={!partner.verified} type="submit">
+                              Retirar
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7}>
+                      <div className="table-empty-state">
+                        <strong>No hay partners comerciales registrados</strong>
+                        <small>Cuando una empresa complete su perfil, aparecera aqui para verificacion.</small>
                       </div>
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </article>

@@ -1373,6 +1373,17 @@ th,
   grid-column: 2;
 }
 
+.table-empty-state {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.8rem;
+  color: var(--muted);
+}
+
+.table-empty-state strong {
+  color: var(--ink);
+}
+
 .moderation-actions {
   display: flex;
   gap: 0.4rem;
