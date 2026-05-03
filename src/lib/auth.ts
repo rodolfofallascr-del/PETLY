@@ -83,15 +83,15 @@ export async function getSession() {
   return verifySessionToken(cookieStore.get(SESSION_COOKIE)?.value);
 }
 
-export async function requireRole(role: AppRole) {
+export async function requireRole(role: AppRole, next = "/admin") {
   const session = await getSession();
 
   if (!session) {
-    redirect(`/login?next=/admin`);
+    redirect(`/login?next=${encodeURIComponent(next)}`);
   }
 
   if (session.role !== role) {
-    redirect("/login?error=unauthorized&next=/admin");
+    redirect(`/login?error=unauthorized&next=${encodeURIComponent(next)}`);
   }
 
   return session;

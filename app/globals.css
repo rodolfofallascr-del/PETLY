@@ -1083,6 +1083,111 @@ th,
   display: block;
 }
 
+.role-page {
+  min-height: 100vh;
+  padding: 2rem;
+  color: #172027;
+  font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 14% 16%, rgba(122, 167, 199, 0.28), transparent 24rem),
+    radial-gradient(circle at 88% 12%, rgba(244, 184, 96, 0.28), transparent 28rem),
+    linear-gradient(135deg, #f8f3eb 0%, #edf5f9 100%);
+}
+
+.business-page {
+  background:
+    radial-gradient(circle at 15% 18%, rgba(244, 184, 96, 0.32), transparent 26rem),
+    radial-gradient(circle at 88% 12%, rgba(200, 191, 220, 0.28), transparent 28rem),
+    linear-gradient(135deg, #f8f3eb 0%, #f4eee8 100%);
+}
+
+.role-hero,
+.role-grid,
+.role-panel {
+  width: min(1120px, 100%);
+  margin-inline: auto;
+}
+
+.role-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.role-hero p,
+.role-panel p:first-child {
+  margin: 0 0 0.45rem;
+  color: #9a5b35;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.role-hero h1 {
+  margin: 0;
+  font-family: "Aptos Display", "Segoe UI Variable Display", "Trebuchet MS", sans-serif;
+  font-size: clamp(2.7rem, 7vw, 5.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.052em;
+}
+
+.role-hero span,
+.role-panel > p,
+.role-grid span {
+  color: #6f7782;
+  line-height: 1.6;
+}
+
+.role-link {
+  flex: 0 0 auto;
+  padding: 0.85rem 1rem;
+  border-radius: 999px;
+  color: #172027;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(89, 139, 171, 0.18);
+  font-weight: 900;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.role-grid article,
+.role-panel {
+  padding: 1rem;
+  border: 1px solid rgba(23, 32, 39, 0.1);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 22px 70px rgba(22, 29, 36, 0.12);
+  backdrop-filter: blur(18px);
+}
+
+.role-grid p {
+  margin-bottom: 0.45rem;
+  color: #6f7782;
+}
+
+.role-grid strong {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-family: "Aptos Display", "Segoe UI Variable Display", "Trebuchet MS", sans-serif;
+  font-size: 2.8rem;
+  letter-spacing: -0.04em;
+}
+
+.role-panel h2 {
+  margin: 0 0 0.7rem;
+  font-family: "Aptos Display", "Segoe UI Variable Display", "Trebuchet MS", sans-serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  letter-spacing: -0.04em;
+}
+
 .role-pill {
   display: inline-flex;
   width: fit-content;
@@ -1216,6 +1321,16 @@ th,
 }
 
 @media (max-width: 620px) {
+  .role-page {
+    padding: 1rem;
+  }
+
+  .role-hero,
+  .role-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
   .admin-session {
     justify-self: stretch;
     justify-content: space-between;

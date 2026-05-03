@@ -7,11 +7,11 @@ async function loginAction(formData: FormData) {
 
   const username = String(formData.get("username") ?? "");
   const password = String(formData.get("password") ?? "");
-  const next = String(formData.get("next") ?? "/admin");
+  const requestedNext = String(formData.get("next") ?? "");
   const session = authenticateDemoUser(username, password);
 
   if (!session) {
-    redirect(`/login?error=invalid&next=${encodeURIComponent(next)}`);
+    redirect(`/login?error=invalid&next=${encodeURIComponent(requestedNext)}`);
   }
 
   const cookieStore = await cookies();
@@ -23,7 +23,10 @@ async function loginAction(formData: FormData) {
     maxAge: 60 * 60 * 24 * 7,
   });
 
-  redirect(next.startsWith("/") ? next : "/admin");
+  const roleHome = session.role === "ADMIN" ? "/admin" : session.role === "BUSINESS" ? "/business" : "/app";
+  const next = requestedNext.startsWith("/") ? requestedNext : roleHome;
+
+  redirect(next);
 }
 
 type LoginPageProps = {
@@ -35,7 +38,7 @@ type LoginPageProps = {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
-  const next = params?.next ?? "/admin";
+  const next = params?.next ?? "";
   const error = params?.error;
 
   return (
@@ -71,9 +74,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
         <div className="demo-users">
           <strong>Cuentas demo</strong>
-          <span>Admin: admin / admin123</span>
-          <span>Empresa: empresa / empresa123</span>
-          <span>Usuario: usuario / usuario123</span>
+          <span>Admin: admin / admin123 - entra a /admin</span>
+          <span>Empresa: empresa / empresa123 - entra a /business</span>
+          <span>Usuario: usuario / usuario123 - entra a /app</span>
         </div>
       </section>
     </main>
