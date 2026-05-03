@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { AdminNav } from "./AdminNav";
-import { logoutAction, scanContentModerationAction, seedDemoDataAction } from "./actions";
+import {
+  approveModerationReportAction,
+  logoutAction,
+  rejectModerationReportAction,
+  resolveModerationReportAction,
+  scanContentModerationAction,
+  seedDemoDataAction,
+} from "./actions";
 import { getAdminDashboardData } from "@/src/lib/admin-dashboard";
 import { requireRole } from "@/src/lib/auth";
 
@@ -19,6 +26,7 @@ function formatCurrencyFromCents(value: number) {
 type AdminPageProps = {
   searchParams?: Promise<{
     flagged?: string;
+    moderation?: string;
     pending?: string;
     scan?: string;
     seed?: string;
@@ -87,6 +95,22 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           <div className="admin-alert warning">
             No se pudo ejecutar el escaneo automatico. Revisa la conexion con Supabase.
           </div>
+        ) : null}
+
+        {params?.moderation === "approved" ? (
+          <div className="admin-alert success">Publicacion aprobada y reporte actualizado.</div>
+        ) : null}
+
+        {params?.moderation === "rejected" ? (
+          <div className="admin-alert success">Publicacion rechazada y reporte cerrado.</div>
+        ) : null}
+
+        {params?.moderation === "resolved" ? (
+          <div className="admin-alert success">Reporte resuelto correctamente.</div>
+        ) : null}
+
+        {params?.moderation === "error" ? (
+          <div className="admin-alert warning">No se pudo procesar la accion de moderacion.</div>
         ) : null}
 
         <section className="metrics" id="resumen">
@@ -269,6 +293,20 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 <small>{report.target}</small>
                 <small>{report.details}</small>
                 <em>{report.status}</em>
+                <div className="moderation-actions">
+                  <form action={approveModerationReportAction}>
+                    <input type="hidden" name="reportId" value={report.id} />
+                    <button className="mini-action approve" type="submit">Aprobar</button>
+                  </form>
+                  <form action={rejectModerationReportAction}>
+                    <input type="hidden" name="reportId" value={report.id} />
+                    <button className="mini-action reject" type="submit">Rechazar</button>
+                  </form>
+                  <form action={resolveModerationReportAction}>
+                    <input type="hidden" name="reportId" value={report.id} />
+                    <button className="mini-action" type="submit">Resolver</button>
+                  </form>
+                </div>
               </div>
             ))}
           </div>

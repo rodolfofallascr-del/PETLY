@@ -326,3 +326,115 @@ export async function scanContentModerationAction() {
 
   redirect(`/admin?scan=success&flagged=${flagged}&pending=${pending}`);
 }
+
+export async function approveModerationReportAction(formData: FormData) {
+  await requireRole("ADMIN");
+
+  const reportId = String(formData.get("reportId") ?? "");
+
+  if (!reportId) {
+    redirect("/admin?moderation=error");
+  }
+
+  try {
+    const report = await prisma.report.update({
+      data: {
+        status: "APPROVED",
+      },
+      where: {
+        id: reportId,
+      },
+      select: {
+        postId: true,
+      },
+    });
+
+    if (report.postId) {
+      await prisma.post.update({
+        data: {
+          moderationStatus: "APPROVED",
+        },
+        where: {
+          id: report.postId,
+        },
+      });
+    }
+
+    revalidatePath("/admin");
+  } catch (error) {
+    console.error("Unable to approve moderation report", error);
+    redirect("/admin?moderation=error");
+  }
+
+  redirect("/admin?moderation=approved");
+}
+
+export async function rejectModerationReportAction(formData: FormData) {
+  await requireRole("ADMIN");
+
+  const reportId = String(formData.get("reportId") ?? "");
+
+  if (!reportId) {
+    redirect("/admin?moderation=error");
+  }
+
+  try {
+    const report = await prisma.report.update({
+      data: {
+        status: "REJECTED",
+      },
+      where: {
+        id: reportId,
+      },
+      select: {
+        postId: true,
+      },
+    });
+
+    if (report.postId) {
+      await prisma.post.update({
+        data: {
+          moderationStatus: "REJECTED",
+        },
+        where: {
+          id: report.postId,
+        },
+      });
+    }
+
+    revalidatePath("/admin");
+  } catch (error) {
+    console.error("Unable to reject moderation report", error);
+    redirect("/admin?moderation=error");
+  }
+
+  redirect("/admin?moderation=rejected");
+}
+
+export async function resolveModerationReportAction(formData: FormData) {
+  await requireRole("ADMIN");
+
+  const reportId = String(formData.get("reportId") ?? "");
+
+  if (!reportId) {
+    redirect("/admin?moderation=error");
+  }
+
+  try {
+    await prisma.report.update({
+      data: {
+        status: "APPROVED",
+      },
+      where: {
+        id: reportId,
+      },
+    });
+
+    revalidatePath("/admin");
+  } catch (error) {
+    console.error("Unable to resolve moderation report", error);
+    redirect("/admin?moderation=error");
+  }
+
+  redirect("/admin?moderation=resolved");
+}

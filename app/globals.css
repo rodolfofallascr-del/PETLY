@@ -1325,7 +1325,7 @@ th,
 }
 
 .admin-list.compact div {
-  grid-template-columns: auto 1fr 1.3fr 1.5fr auto;
+  grid-template-columns: auto 1fr 1.2fr 1.4fr auto auto;
 }
 
 .admin-list span {
@@ -1359,6 +1359,38 @@ th,
   font-weight: 900;
 }
 
+.moderation-actions {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.moderation-actions form {
+  display: contents;
+}
+
+.mini-action {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.45rem 0.65rem;
+  color: #315d78;
+  background: rgba(122, 167, 199, 0.18);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.mini-action.approve {
+  color: #286049;
+  background: rgba(88, 171, 133, 0.18);
+}
+
+.mini-action.reject {
+  color: #8b2f21;
+  background: rgba(217, 121, 91, 0.16);
+}
+
 @media (max-width: 620px) {
   .role-page {
     padding: 1rem;
@@ -1386,7 +1418,12 @@ th,
   }
 
   .admin-list em,
-  .admin-list small:last-child {
+  .admin-list small:last-child,
+  .moderation-actions {
     grid-column: 2;
+  }
+
+  .moderation-actions {
+    justify-content: flex-start;
   }
 }
