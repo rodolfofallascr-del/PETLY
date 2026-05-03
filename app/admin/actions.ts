@@ -7,6 +7,28 @@ import { SESSION_COOKIE, requireRole } from "@/src/lib/auth";
 import { analyzeContentModeration, formatModerationDetails } from "@/src/lib/content-moderation";
 import { prisma } from "@/src/lib/prisma";
 
+async function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function runWithRetry<T>(operation: () => Promise<T>, attempts = 2) {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+
+      if (attempt < attempts) {
+        await wait(450 * attempt);
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 export async function logoutAction() {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE);
@@ -242,81 +264,86 @@ export async function scanContentModerationAction() {
   let pending = 0;
 
   try {
-    const posts = await prisma.post.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 100,
-      where: {
-        moderationStatus: {
-          in: ["APPROVED", "PENDING"],
+    await runWithRetry(async () => {
+      const posts = await prisma.post.findMany({
+        orderBy: {
+          createdAt: "desc",
         },
-      },
-      select: {
-        authorId: true,
-        body: true,
-        id: true,
-        moderationStatus: true,
-      },
-    });
-    const moderator = await prisma.user.upsert({
-      create: {
-        email: session.email,
-        name: session.name,
-        role: "ADMIN",
-        username: "admin",
-      },
-      update: {
-        role: "ADMIN",
-      },
-      where: {
-        email: session.email,
-      },
-    });
-
-    for (const post of posts) {
-      const result = analyzeContentModeration(post.body);
-
-      if (result.status === "APPROVED") {
-        continue;
-      }
-
-      if (result.status === "FLAGGED") {
-        flagged += 1;
-      } else {
-        pending += 1;
-      }
-
-      await prisma.post.update({
-        data: {
-          moderationStatus: result.status,
+        take: 100,
+        where: {
+          moderationStatus: {
+            in: ["APPROVED", "PENDING"],
+          },
+        },
+        select: {
+          authorId: true,
+          body: true,
+          id: true,
+          moderationStatus: true,
+        },
+      });
+      const moderator = await prisma.user.upsert({
+        create: {
+          email: session.email,
+          name: session.name,
+          role: "ADMIN",
+          username: `moderator-${session.userId}`.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
+        },
+        update: {
+          role: "ADMIN",
         },
         where: {
-          id: post.id,
+          email: session.email,
         },
       });
 
-      const reason = `Auto: ${result.primaryReason}`;
-      const existingReport = await prisma.report.findFirst({
-        where: {
-          postId: post.id,
-          reason,
-        },
-      });
+      flagged = 0;
+      pending = 0;
 
-      if (!existingReport) {
-        await prisma.report.create({
+      for (const post of posts) {
+        const result = analyzeContentModeration(post.body);
+
+        if (result.status === "APPROVED") {
+          continue;
+        }
+
+        if (result.status === "FLAGGED") {
+          flagged += 1;
+        } else {
+          pending += 1;
+        }
+
+        await prisma.post.update({
           data: {
-            details: formatModerationDetails(result),
-            postId: post.id,
-            reason,
-            reportedUserId: post.authorId,
-            reporterId: moderator.id,
-            status: "PENDING",
+            moderationStatus: result.status,
+          },
+          where: {
+            id: post.id,
           },
         });
+
+        const reason = `Auto: ${result.primaryReason}`;
+        const existingReport = await prisma.report.findFirst({
+          where: {
+            postId: post.id,
+            reason,
+          },
+        });
+
+        if (!existingReport) {
+          await prisma.report.create({
+            data: {
+              details: formatModerationDetails(result),
+              postId: post.id,
+              reason,
+              reportedUserId: post.authorId,
+              reporterId: moderator.id,
+              status: "PENDING",
+            },
+          });
+        }
       }
-    }
+    });
 
     revalidatePath("/admin");
   } catch (error) {
