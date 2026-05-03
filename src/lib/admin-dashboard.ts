@@ -38,6 +38,7 @@ export type AdminDashboardData = {
     ctr: string;
     campaigns: number;
     ads: number;
+    verified: boolean;
   }>;
   adInventory: Array<{
     id: string;
@@ -47,6 +48,8 @@ export type AdminDashboardData = {
     impressions: number;
     clicks: number;
     ctr: string;
+    canApprove: boolean;
+    canReject: boolean;
   }>;
   moderationQueue: Array<{
     id: string;
@@ -122,6 +125,7 @@ const fallbackDashboard: AdminDashboardData = {
       ctr: "7.5%",
       campaigns: 1,
       ads: 1,
+      verified: true,
     },
     {
       id: "fallback-partner-2",
@@ -131,6 +135,7 @@ const fallbackDashboard: AdminDashboardData = {
       ctr: "3.2%",
       campaigns: 0,
       ads: 0,
+      verified: false,
     },
   ],
   adInventory: [
@@ -142,6 +147,8 @@ const fallbackDashboard: AdminDashboardData = {
       impressions: 1280,
       clicks: 96,
       ctr: "7.5%",
+      canApprove: false,
+      canReject: true,
     },
     {
       id: "fallback-ad-2",
@@ -151,6 +158,8 @@ const fallbackDashboard: AdminDashboardData = {
       impressions: 0,
       clicks: 0,
       ctr: "0%",
+      canApprove: true,
+      canReject: true,
     },
   ],
   moderationQueue: [
@@ -385,6 +394,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
               ctr: calculateCtr(partnerTotals.clicks, partnerTotals.impressions),
               campaigns: partner.campaigns.length,
               ads,
+              verified: partner.verified,
             };
           })
         : fallbackDashboard.partners,
@@ -397,6 +407,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
             impressions: ad._count.impressions,
             clicks: ad._count.clicks,
             ctr: calculateCtr(ad._count.clicks, ad._count.impressions),
+            canApprove: ad.moderationStatus !== "APPROVED",
+            canReject: ad.moderationStatus !== "REJECTED",
           }))
         : fallbackDashboard.adInventory,
       moderationQueue: pendingReports

@@ -523,3 +523,151 @@ export async function resolveModerationReportAction(formData: FormData) {
 
   redirect("/admin?moderation=resolved");
 }
+
+export async function approveAdAction(formData: FormData) {
+  const session = await requireRole("ADMIN");
+  const adId = String(formData.get("adId") ?? "");
+
+  if (!adId) {
+    redirect("/admin?ads=error");
+  }
+
+  try {
+    const ad = await prisma.ad.update({
+      data: {
+        moderationStatus: "APPROVED",
+      },
+      where: {
+        id: adId,
+      },
+      select: {
+        title: true,
+      },
+    });
+    const moderator = await getModerator(session);
+
+    await writeModerationLog({
+      action: "AD_APPROVE",
+      details: `Anuncio aprobado: ${ad.title}.`,
+      moderatorId: moderator.id,
+    });
+
+    revalidatePath("/admin");
+  } catch (error) {
+    console.error("Unable to approve ad", error);
+    redirect("/admin?ads=error");
+  }
+
+  redirect("/admin?ads=approved");
+}
+
+export async function rejectAdAction(formData: FormData) {
+  const session = await requireRole("ADMIN");
+  const adId = String(formData.get("adId") ?? "");
+
+  if (!adId) {
+    redirect("/admin?ads=error");
+  }
+
+  try {
+    const ad = await prisma.ad.update({
+      data: {
+        moderationStatus: "REJECTED",
+      },
+      where: {
+        id: adId,
+      },
+      select: {
+        title: true,
+      },
+    });
+    const moderator = await getModerator(session);
+
+    await writeModerationLog({
+      action: "AD_REJECT",
+      details: `Anuncio rechazado: ${ad.title}.`,
+      moderatorId: moderator.id,
+    });
+
+    revalidatePath("/admin");
+  } catch (error) {
+    console.error("Unable to reject ad", error);
+    redirect("/admin?ads=error");
+  }
+
+  redirect("/admin?ads=rejected");
+}
+
+export async function verifyBusinessAction(formData: FormData) {
+  const session = await requireRole("ADMIN");
+  const businessId = String(formData.get("businessId") ?? "");
+
+  if (!businessId) {
+    redirect("/admin?partners=error");
+  }
+
+  try {
+    const business = await prisma.business.update({
+      data: {
+        verified: true,
+      },
+      where: {
+        id: businessId,
+      },
+      select: {
+        name: true,
+      },
+    });
+    const moderator = await getModerator(session);
+
+    await writeModerationLog({
+      action: "BUSINESS_VERIFY",
+      details: `Empresa verificada: ${business.name}.`,
+      moderatorId: moderator.id,
+    });
+
+    revalidatePath("/admin");
+  } catch (error) {
+    console.error("Unable to verify business", error);
+    redirect("/admin?partners=error");
+  }
+
+  redirect("/admin?partners=verified");
+}
+
+export async function unverifyBusinessAction(formData: FormData) {
+  const session = await requireRole("ADMIN");
+  const businessId = String(formData.get("businessId") ?? "");
+
+  if (!businessId) {
+    redirect("/admin?partners=error");
+  }
+
+  try {
+    const business = await prisma.business.update({
+      data: {
+        verified: false,
+      },
+      where: {
+        id: businessId,
+      },
+      select: {
+        name: true,
+      },
+    });
+    const moderator = await getModerator(session);
+
+    await writeModerationLog({
+      action: "BUSINESS_UNVERIFY",
+      details: `Verificacion retirada: ${business.name}.`,
+      moderatorId: moderator.id,
+    });
+
+    revalidatePath("/admin");
+  } catch (error) {
+    console.error("Unable to unverify business", error);
+    redirect("/admin?partners=error");
+  }
+
+  redirect("/admin?partners=unverified");
+}

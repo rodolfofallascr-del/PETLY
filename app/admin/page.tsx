@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { AdminNav } from "./AdminNav";
 import {
+  approveAdAction,
   approveModerationReportAction,
   logoutAction,
+  rejectAdAction,
   rejectModerationReportAction,
   resolveModerationReportAction,
   scanContentModerationAction,
   seedDemoDataAction,
+  unverifyBusinessAction,
+  verifyBusinessAction,
 } from "./actions";
 import { getAdminDashboardData } from "@/src/lib/admin-dashboard";
 import { requireRole } from "@/src/lib/auth";
@@ -25,8 +29,10 @@ function formatCurrencyFromCents(value: number) {
 
 type AdminPageProps = {
   searchParams?: Promise<{
+    ads?: string;
     flagged?: string;
     moderation?: string;
+    partners?: string;
     pending?: string;
     scan?: string;
     seed?: string;
@@ -111,6 +117,30 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
         {params?.moderation === "error" ? (
           <div className="admin-alert warning">No se pudo procesar la accion de moderacion.</div>
+        ) : null}
+
+        {params?.ads === "approved" ? (
+          <div className="admin-alert success">Anuncio aprobado para publicacion.</div>
+        ) : null}
+
+        {params?.ads === "rejected" ? (
+          <div className="admin-alert success">Anuncio rechazado correctamente.</div>
+        ) : null}
+
+        {params?.ads === "error" ? (
+          <div className="admin-alert warning">No se pudo procesar la accion del anuncio.</div>
+        ) : null}
+
+        {params?.partners === "verified" ? (
+          <div className="admin-alert success">Empresa verificada correctamente.</div>
+        ) : null}
+
+        {params?.partners === "unverified" ? (
+          <div className="admin-alert success">Verificacion de empresa retirada.</div>
+        ) : null}
+
+        {params?.partners === "error" ? (
+          <div className="admin-alert warning">No se pudo procesar la accion del partner.</div>
         ) : null}
 
         <section className="metrics" id="resumen">
@@ -214,6 +244,20 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   <small>{formatNumber(ad.impressions)} impresiones</small>
                   <small>{formatNumber(ad.clicks)} clics</small>
                   <small>CTR {ad.ctr}</small>
+                  <div className="monetization-actions">
+                    <form action={approveAdAction}>
+                      <input type="hidden" name="adId" value={ad.id} />
+                      <button className="mini-action approve" disabled={!ad.canApprove} type="submit">
+                        Aprobar
+                      </button>
+                    </form>
+                    <form action={rejectAdAction}>
+                      <input type="hidden" name="adId" value={ad.id} />
+                      <button className="mini-action reject" disabled={!ad.canReject} type="submit">
+                        Rechazar
+                      </button>
+                    </form>
+                  </div>
                 </div>
               ))}
             </div>
@@ -236,6 +280,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   <th>CTR</th>
                   <th>Campanas</th>
                   <th>Anuncios</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -247,6 +292,22 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     <td>{partner.ctr}</td>
                     <td>{formatNumber(partner.campaigns)}</td>
                     <td>{formatNumber(partner.ads)}</td>
+                    <td>
+                      <div className="monetization-actions">
+                        <form action={verifyBusinessAction}>
+                          <input type="hidden" name="businessId" value={partner.id} />
+                          <button className="mini-action approve" disabled={partner.verified} type="submit">
+                            Verificar
+                          </button>
+                        </form>
+                        <form action={unverifyBusinessAction}>
+                          <input type="hidden" name="businessId" value={partner.id} />
+                          <button className="mini-action reject" disabled={!partner.verified} type="submit">
+                            Retirar
+                          </button>
+                        </form>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>

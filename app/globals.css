@@ -909,6 +909,12 @@ th,
   color: var(--muted);
 }
 
+.ad-list .monetization-actions {
+  grid-column: 1 / -1;
+  justify-content: flex-start;
+  margin-top: 0.45rem;
+}
+
 .admin-page table {
   width: 100%;
   border-collapse: collapse;
@@ -1366,8 +1372,15 @@ th,
   flex-wrap: wrap;
 }
 
-.moderation-actions form {
+.moderation-actions form,
+.monetization-actions form {
   display: contents;
+}
+
+.monetization-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .mini-action {
@@ -1379,6 +1392,11 @@ th,
   cursor: pointer;
   font-size: 0.78rem;
   font-weight: 900;
+}
+
+.mini-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
 }
 
 .mini-action.approve {
