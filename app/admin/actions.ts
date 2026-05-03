@@ -29,6 +29,41 @@ async function runWithRetry<T>(operation: () => Promise<T>, attempts = 2) {
   throw lastError;
 }
 
+async function getModerator(session: Awaited<ReturnType<typeof requireRole>>) {
+  return prisma.user.upsert({
+    create: {
+      email: session.email,
+      name: session.name,
+      role: "ADMIN",
+      username: `moderator-${session.userId}`.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
+    },
+    update: {
+      role: "ADMIN",
+    },
+    where: {
+      email: session.email,
+    },
+  });
+}
+
+async function writeModerationLog(data: {
+  action: string;
+  details: string;
+  moderatorId?: string;
+  postId?: string | null;
+  reportId?: string | null;
+}) {
+  await prisma.moderationLog.create({
+    data: {
+      action: data.action,
+      details: data.details,
+      moderatorId: data.moderatorId,
+      postId: data.postId,
+      reportId: data.reportId,
+    },
+  });
+}
+
 export async function logoutAction() {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE);
@@ -282,20 +317,7 @@ export async function scanContentModerationAction() {
           moderationStatus: true,
         },
       });
-      const moderator = await prisma.user.upsert({
-        create: {
-          email: session.email,
-          name: session.name,
-          role: "ADMIN",
-          username: `moderator-${session.userId}`.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
-        },
-        update: {
-          role: "ADMIN",
-        },
-        where: {
-          email: session.email,
-        },
-      });
+      const moderator = await getModerator(session);
 
       flagged = 0;
       pending = 0;
@@ -343,6 +365,12 @@ export async function scanContentModerationAction() {
           });
         }
       }
+
+      await writeModerationLog({
+        action: "SCAN",
+        details: `Escaneo automatico ejecutado. Marcadas: ${flagged}. En revision: ${pending}.`,
+        moderatorId: moderator.id,
+      });
     });
 
     revalidatePath("/admin");
@@ -355,7 +383,7 @@ export async function scanContentModerationAction() {
 }
 
 export async function approveModerationReportAction(formData: FormData) {
-  await requireRole("ADMIN");
+  const session = await requireRole("ADMIN");
 
   const reportId = String(formData.get("reportId") ?? "");
 
@@ -387,6 +415,15 @@ export async function approveModerationReportAction(formData: FormData) {
       });
     }
 
+    const moderator = await getModerator(session);
+    await writeModerationLog({
+      action: "APPROVE",
+      details: "Publicacion aprobada desde la cola de moderacion.",
+      moderatorId: moderator.id,
+      postId: report.postId,
+      reportId,
+    });
+
     revalidatePath("/admin");
   } catch (error) {
     console.error("Unable to approve moderation report", error);
@@ -397,7 +434,7 @@ export async function approveModerationReportAction(formData: FormData) {
 }
 
 export async function rejectModerationReportAction(formData: FormData) {
-  await requireRole("ADMIN");
+  const session = await requireRole("ADMIN");
 
   const reportId = String(formData.get("reportId") ?? "");
 
@@ -429,6 +466,15 @@ export async function rejectModerationReportAction(formData: FormData) {
       });
     }
 
+    const moderator = await getModerator(session);
+    await writeModerationLog({
+      action: "REJECT",
+      details: "Publicacion rechazada desde la cola de moderacion.",
+      moderatorId: moderator.id,
+      postId: report.postId,
+      reportId,
+    });
+
     revalidatePath("/admin");
   } catch (error) {
     console.error("Unable to reject moderation report", error);
@@ -439,7 +485,7 @@ export async function rejectModerationReportAction(formData: FormData) {
 }
 
 export async function resolveModerationReportAction(formData: FormData) {
-  await requireRole("ADMIN");
+  const session = await requireRole("ADMIN");
 
   const reportId = String(formData.get("reportId") ?? "");
 
@@ -448,13 +494,25 @@ export async function resolveModerationReportAction(formData: FormData) {
   }
 
   try {
-    await prisma.report.update({
+    const report = await prisma.report.update({
       data: {
         status: "APPROVED",
       },
       where: {
         id: reportId,
       },
+      select: {
+        postId: true,
+      },
+    });
+
+    const moderator = await getModerator(session);
+    await writeModerationLog({
+      action: "RESOLVE",
+      details: "Reporte resuelto sin cambiar el estado de la publicacion.",
+      moderatorId: moderator.id,
+      postId: report.postId,
+      reportId,
     });
 
     revalidatePath("/admin");

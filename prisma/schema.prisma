@@ -79,6 +79,7 @@ model User {
   businessesOwned  Business[]
   reportsMade      Report[]    @relation("Reporter")
   reportsReceived  Report[]    @relation("ReportedUser")
+  moderationLogs    ModerationLog[]
 
   @@index([role])
   @@index([city, country])
@@ -299,10 +300,30 @@ model Report {
   reporter     User  @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
   reportedUser User? @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: SetNull)
   post         Post? @relation(fields: [postId], references: [id], onDelete: SetNull)
+  moderationLogs ModerationLog[]
 
   @@index([status])
   @@index([reporterId])
   @@index([reportedUserId])
   @@index([postId])
+}
+
+model ModerationLog {
+  id          String   @id @default(cuid())
+  reportId    String?
+  postId      String?
+  moderatorId String?
+  action      String
+  details     String?
+  createdAt   DateTime @default(now())
+
+  report    Report? @relation(fields: [reportId], references: [id], onDelete: SetNull)
+  moderator User?   @relation(fields: [moderatorId], references: [id], onDelete: SetNull)
+
+  @@index([reportId])
+  @@index([postId])
+  @@index([moderatorId])
+  @@index([action])
+  @@index([createdAt])
 }
 

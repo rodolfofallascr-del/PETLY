@@ -310,6 +310,23 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               </div>
             ))}
           </div>
+          <div className="moderation-history">
+            <div className="section-head">
+              <div>
+                <p>Auditoria</p>
+                <h2>Historial reciente</h2>
+              </div>
+            </div>
+            <div className="timeline-list">
+              {dashboard.moderationHistory.map((log) => (
+                <article key={log.id}>
+                  <span>{log.action}</span>
+                  <strong>{log.details}</strong>
+                  <small>{log.actor} - {log.createdAt}</small>
+                </article>
+              ))}
+            </div>
+          </div>
         </section>
       </main>
     </div>

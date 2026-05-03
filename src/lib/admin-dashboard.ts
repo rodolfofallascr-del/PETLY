@@ -55,6 +55,13 @@ export type AdminDashboardData = {
     target: string;
     details: string;
   }>;
+  moderationHistory: Array<{
+    id: string;
+    action: string;
+    actor: string;
+    details: string;
+    createdAt: string;
+  }>;
 };
 
 const fallbackDashboard: AdminDashboardData = {
@@ -162,6 +169,15 @@ const fallbackDashboard: AdminDashboardData = {
       details: "Pendiente de revision manual.",
     },
   ],
+  moderationHistory: [
+    {
+      id: "fallback-log-1",
+      action: "SCAN",
+      actor: "Admin Petly",
+      details: "Escaneo automatico de publicaciones ejecutado.",
+      createdAt: "Demo",
+    },
+  ],
 };
 
 function calculateCtr(clicks: number, impressions: number) {
@@ -186,6 +202,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       partners,
       adInventory,
       moderationQueue,
+      moderationHistory,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.pet.count(),
@@ -287,6 +304,21 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
           details: true,
         },
       }),
+      prisma.moderationLog.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: {
+          id: true,
+          action: true,
+          details: true,
+          createdAt: true,
+          moderator: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      }),
     ]);
 
     return {
@@ -376,6 +408,18 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
             details: report.details ?? "Sin detalles adicionales.",
           }))
         : fallbackDashboard.moderationQueue,
+      moderationHistory: moderationHistory.length
+        ? moderationHistory.map((log) => ({
+            id: log.id,
+            action: log.action,
+            actor: log.moderator?.name ?? "Sistema Petly",
+            details: log.details ?? "Accion de moderacion registrada.",
+            createdAt: log.createdAt.toLocaleString("es-CR", {
+              dateStyle: "short",
+              timeStyle: "short",
+            }),
+          }))
+        : fallbackDashboard.moderationHistory,
     };
   } catch (error) {
     console.error("Admin dashboard database read failed", error);
