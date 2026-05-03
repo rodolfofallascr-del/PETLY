@@ -130,6 +130,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 <small>{user.email}</small>
                 <em>{user.role}</em>
                 <small>{formatNumber(user.pets)} mascotas</small>
+                <small>{formatNumber(user.posts)} posts</small>
+                <small>Ingreso: {user.joinedAt}</small>
               </div>
             ))}
           </div>
@@ -169,6 +171,9 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   <strong>{ad.title}</strong>
                   <span>{ad.channel}</span>
                   <em>{ad.status}</em>
+                  <small>{formatNumber(ad.impressions)} impresiones</small>
+                  <small>{formatNumber(ad.clicks)} clics</small>
+                  <small>CTR {ad.ctr}</small>
                 </div>
               ))}
             </div>
@@ -189,6 +194,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   <th>Tipo</th>
                   <th>Estado</th>
                   <th>CTR</th>
+                  <th>Campanas</th>
+                  <th>Anuncios</th>
                 </tr>
               </thead>
               <tbody>
@@ -198,6 +205,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     <td>{partner.category}</td>
                     <td>{partner.status}</td>
                     <td>{partner.ctr}</td>
+                    <td>{formatNumber(partner.campaigns)}</td>
+                    <td>{formatNumber(partner.ads)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -219,6 +228,16 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
               Prioridades del MVP: reportes, bloqueo de usuarios, aprobacion de adopciones,
               verificacion de empresas y revision de anuncios antes de publicarlos.
             </p>
+          </div>
+          <div className="admin-list compact">
+            {dashboard.moderationQueue.map((report) => (
+              <div key={report.id}>
+                <span>!</span>
+                <strong>{report.reason}</strong>
+                <small>{report.target}</small>
+                <em>{report.status}</em>
+              </div>
+            ))}
           </div>
         </section>
       </main>

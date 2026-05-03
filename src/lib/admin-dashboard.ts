@@ -25,6 +25,8 @@ export type AdminDashboardData = {
     email: string;
     role: string;
     pets: number;
+    posts: number;
+    joinedAt: string;
   }>;
   partners: Array<{
     id: string;
@@ -32,12 +34,23 @@ export type AdminDashboardData = {
     category: string;
     status: string;
     ctr: string;
+    campaigns: number;
+    ads: number;
   }>;
   adInventory: Array<{
     id: string;
     title: string;
     channel: string;
     status: string;
+    impressions: number;
+    clicks: number;
+    ctr: string;
+  }>;
+  moderationQueue: Array<{
+    id: string;
+    reason: string;
+    status: string;
+    target: string;
   }>;
 };
 
@@ -75,6 +88,8 @@ const fallbackDashboard: AdminDashboardData = {
       email: "sofia@petly.local",
       role: "USER",
       pets: 1,
+      posts: 1,
+      joinedAt: "Demo",
     },
     {
       id: "fallback-user-2",
@@ -82,6 +97,8 @@ const fallbackDashboard: AdminDashboardData = {
       email: "vetcare@petly.local",
       role: "BUSINESS",
       pets: 0,
+      posts: 0,
+      joinedAt: "Demo",
     },
   ],
   partners: [
@@ -91,6 +108,8 @@ const fallbackDashboard: AdminDashboardData = {
       category: "Veterinaria",
       status: "Verificada",
       ctr: "7.5%",
+      campaigns: 1,
+      ads: 1,
     },
     {
       id: "fallback-partner-2",
@@ -98,6 +117,8 @@ const fallbackDashboard: AdminDashboardData = {
       category: "Grooming",
       status: "Revision",
       ctr: "3.2%",
+      campaigns: 0,
+      ads: 0,
     },
   ],
   adInventory: [
@@ -106,12 +127,32 @@ const fallbackDashboard: AdminDashboardData = {
       title: "Feed nativo",
       channel: "Google Ads / marcas privadas",
       status: "Listo",
+      impressions: 1280,
+      clicks: 96,
+      ctr: "7.5%",
     },
     {
       id: "fallback-ad-2",
       title: "Directorio premium",
       channel: "Veterinarias, groomers y tiendas",
       status: "Listo",
+      impressions: 0,
+      clicks: 0,
+      ctr: "0%",
+    },
+  ],
+  moderationQueue: [
+    {
+      id: "fallback-report-1",
+      reason: "Revision de adopcion",
+      status: "PENDING",
+      target: "Toby busca hogar",
+    },
+    {
+      id: "fallback-report-2",
+      reason: "Verificacion de empresa",
+      status: "PENDING",
+      target: "Happy Groom",
     },
   ],
 };
@@ -137,6 +178,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       recentUsers,
       partners,
       adInventory,
+      moderationQueue,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.pet.count(),
@@ -172,8 +214,10 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
           _count: {
             select: {
               pets: true,
+              posts: true,
             },
           },
+          createdAt: true,
         },
       }),
       prisma.business.findMany({
@@ -208,6 +252,31 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
           title: true,
           placement: true,
           moderationStatus: true,
+          _count: {
+            select: {
+              clicks: true,
+              impressions: true,
+            },
+          },
+        },
+      }),
+      prisma.report.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 4,
+        select: {
+          id: true,
+          reason: true,
+          status: true,
+          post: {
+            select: {
+              body: true,
+            },
+          },
+          reportedUser: {
+            select: {
+              name: true,
+            },
+          },
         },
       }),
     ]);
@@ -240,6 +309,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
             email: user.email,
             role: user.role,
             pets: user._count.pets,
+            posts: user._count.posts,
+            joinedAt: user.createdAt.toLocaleDateString("es-CR"),
           }))
         : fallbackDashboard.recentUsers,
       partners: partners.length
@@ -254,6 +325,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
               },
               { clicks: 0, impressions: 0 },
             );
+            const ads = partner.campaigns.reduce((total, campaign) => total + campaign.ads.length, 0);
 
             return {
               id: partner.id,
@@ -261,6 +333,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
               category: partner.category,
               status: partner.verified ? "Verificada" : "Revision",
               ctr: calculateCtr(partnerTotals.clicks, partnerTotals.impressions),
+              campaigns: partner.campaigns.length,
+              ads,
             };
           })
         : fallbackDashboard.partners,
@@ -270,8 +344,19 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
             title: ad.title,
             channel: ad.placement.replaceAll("_", " ").toLowerCase(),
             status: ad.moderationStatus,
+            impressions: ad._count.impressions,
+            clicks: ad._count.clicks,
+            ctr: calculateCtr(ad._count.clicks, ad._count.impressions),
           }))
         : fallbackDashboard.adInventory,
+      moderationQueue: pendingReports
+        ? moderationQueue.map((report) => ({
+            id: report.id,
+            reason: report.reason,
+            status: report.status,
+            target: report.post?.body.slice(0, 42) ?? report.reportedUser?.name ?? "Reporte general",
+          }))
+        : fallbackDashboard.moderationQueue,
     };
   } catch (error) {
     console.error("Admin dashboard database read failed", error);
