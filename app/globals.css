@@ -1310,6 +1310,7 @@ th,
 }
 
 .business-form input,
+.business-form select,
 .business-form textarea {
   width: 100%;
   border: 1px solid rgba(89, 139, 171, 0.22);
@@ -1318,6 +1319,10 @@ th,
   color: #172027;
   background: rgba(248, 250, 252, 0.82);
   font: inherit;
+}
+
+.business-form select {
+  appearance: none;
 }
 
 .business-form textarea {
@@ -1366,6 +1371,12 @@ th,
   font-style: normal;
   font-size: 0.8rem;
   font-weight: 900;
+}
+
+.user-activity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
 
 .role-pill {
@@ -1607,7 +1618,8 @@ th,
   .role-hero,
   .role-grid,
   .business-workspace,
-  .business-form {
+  .business-form,
+  .user-activity-grid {
     display: grid;
     grid-template-columns: 1fr;
   }
