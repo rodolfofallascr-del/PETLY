@@ -508,13 +508,15 @@ small {
   background: linear-gradient(145deg, rgba(255, 209, 102, 0.64), rgba(255, 255, 255, 0.74));
 }
 
-.sponsor-card a {
+.sponsor-card button {
   display: inline-flex;
   margin-top: 0.5rem;
+  border: 0;
   padding: 0.65rem 0.8rem;
   border-radius: 999px;
   color: #fff8e6;
   background: var(--ink);
+  cursor: pointer;
   font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
   font-weight: 900;
 }

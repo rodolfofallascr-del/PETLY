@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { trackAdClickAction } from "./actions";
 import { getPublicFeedData } from "@/src/lib/public-feed";
 
 export const dynamic = "force-dynamic";
@@ -128,7 +129,11 @@ export default async function HomePage() {
                 <p className="tiny-label">Anuncio aprobado</p>
                 <h2>{feed.ad.title}</h2>
                 <p>{feed.ad.body}</p>
-                <a href={feed.ad.targetUrl}>Ver promocion</a>
+                <form action={trackAdClickAction}>
+                  <input type="hidden" name="adId" value={feed.ad.id} />
+                  <input type="hidden" name="targetUrl" value={feed.ad.targetUrl} />
+                  <button type="submit">Ver promocion</button>
+                </form>
               </section>
             ) : null}
 

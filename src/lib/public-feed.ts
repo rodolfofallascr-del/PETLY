@@ -21,6 +21,7 @@ export type PublicFeedData = {
     icon: string;
   }>;
   ad: {
+    id: string;
     title: string;
     body: string;
     targetUrl: string;
@@ -120,6 +121,7 @@ export async function getPublicFeedData(): Promise<PublicFeedData> {
           moderationStatus: "APPROVED",
         },
         select: {
+          id: true,
           title: true,
           body: true,
           targetUrl: true,
@@ -132,8 +134,17 @@ export async function getPublicFeedData(): Promise<PublicFeedData> {
           name: pets[0].name,
           meta: `${pets[0].breed ?? "Mascota"} - ${pets[0].city ?? "Costa Rica"}`,
           icon: speciesIcon(pets[0].species),
-        }
+      }
       : fallbackFeed.featuredPet;
+
+    if (ad) {
+      await prisma.adImpression.create({
+        data: {
+          adId: ad.id,
+          placement: "FEED_NATIVE",
+        },
+      });
+    }
 
     return {
       source: "database",
@@ -157,6 +168,7 @@ export async function getPublicFeedData(): Promise<PublicFeedData> {
         : fallbackFeed.nearbyPets,
       ad: ad
         ? {
+            id: ad.id,
             title: ad.title,
             body: ad.body,
             targetUrl: ad.targetUrl,
