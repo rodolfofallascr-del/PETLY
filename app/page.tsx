@@ -1,7 +1,12 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { getPublicFeedData } from "@/src/lib/public-feed";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const feed = await getPublicFeedData();
+
   return (
     <div className="landing-page">
       <div className="ambient ambient-one" />
@@ -20,7 +25,7 @@ export default function HomePage() {
           <a href="#adopciones">Adopciones</a>
         </nav>
 
-        <Link className="primary-action" href="/admin">Panel admin</Link>
+        <Link className="primary-action" href="/login">Entrar</Link>
       </header>
 
       <main className="landing-main">
@@ -39,16 +44,16 @@ export default function HomePage() {
           </div>
 
           <aside className="pet-card hero-card" aria-label="Perfil destacado de mascota">
-            <div className="pet-photo">🐶</div>
+            <div className="pet-photo">{feed.featuredPet.icon}</div>
             <div>
               <p className="tiny-label">Mascota destacada</p>
-              <h2>Luna</h2>
-              <p>Golden Retriever · 2 años · San José</p>
+              <h2>{feed.featuredPet.name}</h2>
+              <p>{feed.featuredPet.meta}</p>
             </div>
             <div className="pet-stats">
-              <span><strong>1.2k</strong> amigos</span>
-              <span><strong>48</strong> rutas</span>
-              <span><strong>12</strong> eventos</span>
+              <span><strong>{feed.source === "database" ? "Live" : "Demo"}</strong> estado</span>
+              <span><strong>{feed.posts.length}</strong> posts</span>
+              <span><strong>{feed.nearbyPets.length}</strong> mascotas</span>
             </div>
           </aside>
         </section>
@@ -56,27 +61,15 @@ export default function HomePage() {
         <section className="app-shell" id="feed">
           <aside className="sidebar panel">
             <h2>Mi manada</h2>
-            <div className="profile-mini active">
-              <span>🐕</span>
-              <div>
-                <strong>Max</strong>
-                <small>Listo para pasear</small>
+            {feed.nearbyPets.slice(0, 3).map((pet, index) => (
+              <div className={`profile-mini ${index === 0 ? "active" : ""}`} key={pet.id}>
+                <span>{pet.icon}</span>
+                <div>
+                  <strong>{pet.name}</strong>
+                  <small>{index === 0 ? "Perfil destacado" : "Cerca de la comunidad"}</small>
+                </div>
               </div>
-            </div>
-            <div className="profile-mini">
-              <span>🐈</span>
-              <div>
-                <strong>Misha</strong>
-                <small>Busca amigos tranquilos</small>
-              </div>
-            </div>
-            <div className="profile-mini">
-              <span>🐇</span>
-              <div>
-                <strong>Nube</strong>
-                <small>Exploradora indoor</small>
-              </div>
-            </div>
+            ))}
 
             <div className="health-box">
               <p className="tiny-label">Recordatorio</p>
@@ -91,53 +84,53 @@ export default function HomePage() {
               <button>¿Qué aventura tuvo tu mascota hoy?</button>
             </div>
 
-            <article className="post-card">
-              <div className="post-header">
-                <div className="avatar warm">🐕</div>
-                <div>
-                  <strong>Max</strong>
-                  <small>Parque La Sabana · hace 18 min</small>
+            {feed.posts.map((post, index) => (
+              <article className={`post-card ${index > 0 ? "compact-post" : ""}`} key={post.id}>
+                <div className="post-header">
+                  <div className={`avatar ${index % 2 === 0 ? "warm" : "cool"}`}>{post.icon}</div>
+                  <div>
+                    <strong>{post.author}</strong>
+                    <small>{post.meta}</small>
+                  </div>
                 </div>
-              </div>
-              <p>
-                Probamos una ruta nueva con mucha sombra. Ideal para perros nerviosos
-                porque hay espacios abiertos y pocos ruidos fuertes.
-              </p>
-              <div className="post-media park-scene">
-                <span>Ruta segura</span>
-              </div>
-              <div className="post-actions">
-                <button>❤️ 128</button>
-                <button>💬 24</button>
-                <button>📍 Guardar ruta</button>
-              </div>
-            </article>
-
-            <article className="post-card compact-post">
-              <div className="post-header">
-                <div className="avatar cool">🐈</div>
-                <div>
-                  <strong>Misha</strong>
-                  <small>Casa · hace 1 h</small>
+                <p>{post.body}</p>
+                {index === 0 ? (
+                  <div className="post-media park-scene">
+                    <span>Comunidad Petly</span>
+                  </div>
+                ) : (
+                  <div className="poll">
+                    <span style={{ "--value": "72%" } as CSSProperties}>Contenido aprobado <strong>72%</strong></span>
+                    <span style={{ "--value": "28%" } as CSSProperties}>Interacciones <strong>28%</strong></span>
+                  </div>
+                )}
+                <div className="post-actions">
+                  <button>Me gusta</button>
+                  <button>Comentar</button>
+                  <button>Guardar</button>
                 </div>
-              </div>
-              <p>Busco recomendaciones de rascadores resistentes. Misha declaró guerra al sofá.</p>
-              <div className="poll">
-                <span style={{ "--value": "72%" } as CSSProperties}>Cartón reforzado <strong>72%</strong></span>
-                <span style={{ "--value": "28%" } as CSSProperties}>Madera + sisal <strong>28%</strong></span>
-              </div>
-            </article>
+              </article>
+            ))}
           </section>
 
           <aside className="right-rail">
             <section className="panel" id="explorar">
               <h2>Cerca de ti</h2>
               <div className="nearby-grid">
-                <div><span>🐩</span><strong>Nala</strong><small>800 m</small></div>
-                <div><span>🐕‍🦺</span><strong>Rocky</strong><small>1.4 km</small></div>
-                <div><span>🐈‍⬛</span><strong>Simba</strong><small>2.1 km</small></div>
+                {feed.nearbyPets.slice(0, 3).map((pet) => (
+                  <div key={pet.id}><span>{pet.icon}</span><strong>{pet.name}</strong><small>{pet.distance}</small></div>
+                ))}
               </div>
             </section>
+
+            {feed.ad ? (
+              <section className="panel sponsor-card">
+                <p className="tiny-label">Anuncio aprobado</p>
+                <h2>{feed.ad.title}</h2>
+                <p>{feed.ad.body}</p>
+                <a href={feed.ad.targetUrl}>Ver promocion</a>
+              </section>
+            ) : null}
 
             <section className="panel event-card" id="eventos">
               <p className="tiny-label">Próximo evento</p>
