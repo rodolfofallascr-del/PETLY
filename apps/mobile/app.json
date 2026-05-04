@@ -13,12 +13,19 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.petly.mobile",
       "adaptiveIcon": {
         "backgroundColor": "#EAF6FB"
       }
     },
     "web": {
       "bundler": "metro"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bf392ef2-9442-499b-ab18-a9d4e17f0050"
+      }
+    },
+    "owner": "rodolfo79"
   }
 }
