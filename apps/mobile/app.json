@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Petly",
+    "slug": "petly-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "petly",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#EAF6FB"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
